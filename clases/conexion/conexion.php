@@ -7,7 +7,7 @@ class conexion{
     private $password;
     private $database;
     private $port;
-    private $conexion;
+    public $conexion;
 
     public function __construct()
     {
@@ -77,6 +77,7 @@ class conexion{
     #esta a diferencia de la anterior, es para que cuando se guarde algo, nos devuelva su id
     public function nonQueryId($sqlstr){
         $results = $this->conexion->query($sqlstr);
+        var_dump($results);
         $filas = $this->conexion->affected_rows;
 
         #esto lo que hace es que si se guardo algo, nos devuleve la fila afectada
