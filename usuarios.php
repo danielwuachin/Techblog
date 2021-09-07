@@ -7,31 +7,31 @@ require_once "clases/respuestas.class.php";
 $_usuarios = new usuarios;
 $_respuestas = new respuestas;
 
-#para los READ, YA SEAN todos los pacientes o solo uno
+#para los READ, YA SEAN todos los Usuarios o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaPacientes = $_usuarios->listaPacientes($pagina);
+        $listaUsuarios = $_usuarios->listaUsuarios($pagina);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($listaPacientes);
+        echo json_encode($listaUsuarios);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
 
 
     }elseif(isset($_GET['id'])){
-        $pacienteId = $_GET['id'];
-        $datosPaciente = $_usuarios->obtenerPaciente($pacienteId);
+        $usuarioId = $_GET['id'];
+        $datosusuario = $_usuarios->obtenerUsuario($usuarioId);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($datosPaciente);
+        echo json_encode($datosUsuario);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
@@ -113,11 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     #RECIBIR LOS DATOS POR EL HEADER-------- si el frontend es con vuejs, los enviara por ahi
     $headers = getallheaders();
     /* print_r($headers);die(); */
-    if (isset($headers['token']) && isset($headers['pacienteid'])) {
+    if (isset($headers['token']) && isset($headers['id'])) {
         #recibimos los datos por el header
         $send = [
             "token" => $headers['token'],
-            "pacienteid" => $headers['pacienteid']
+            "id" => $headers['id']
         ];
         #ahora lo convertimos a un JSON para que sea usado
         

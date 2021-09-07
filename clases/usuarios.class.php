@@ -21,7 +21,7 @@ class usuarios extends conexion{
 
     #PARA EL GET!!!!!!!!!!!!!!!!!!!!!!!!!!
     #se iguala pagina a 1 para que sea el predeterminado
-    public function listaPacientes($pagina = 1){
+    public function listaUsuarios($pagina = 1){
 
         $inicio = 0;
         $cantidad = 100;
@@ -36,7 +36,7 @@ class usuarios extends conexion{
 
 
 
-    public function obtenerPaciente($id){
+    public function obtenerUsuario($id){
         $query = "SELECT * FROM ". $this->table ." WHERE  id = '$id'";
         return parent::obtenerDatos($query);
     }
@@ -310,7 +310,7 @@ class usuarios extends conexion{
 
 
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->eliminarPaciente();
+                    $resp = $this->eliminarUsuario();
                     if ($resp) {
                         $respuesta = $_respuestas->response;
                         $respuesta['result'] = array (
@@ -328,7 +328,7 @@ class usuarios extends conexion{
     }
 
 
-    private function eliminarPaciente(){
+    private function eliminarUsuario(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 
