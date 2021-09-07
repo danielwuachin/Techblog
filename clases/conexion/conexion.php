@@ -77,8 +77,8 @@ class conexion{
     #esta a diferencia de la anterior, es para que cuando se guarde algo, nos devuelva su id
     public function nonQueryId($sqlstr){
         $results = $this->conexion->query($sqlstr);
-        var_dump($results);
         $filas = $this->conexion->affected_rows;
+        var_dump($filas);
 
         #esto lo que hace es que si se guardo algo, nos devuleve la fila afectada
         if($filas >=1){
