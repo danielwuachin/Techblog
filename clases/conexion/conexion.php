@@ -88,7 +88,7 @@ class conexion{
     }
 
 
-    #encriptar la password que envian por json
+    #se comprueba la pass recibida con la de la database
     protected function encriptar($password, $DBpassword){
         return password_verify($password, $DBpassword);
     }

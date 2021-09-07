@@ -21,12 +21,13 @@ class auth extends conexion{
         }else{
             // todo bien todo correcto
             $usuario = $datos['usuario'];
-            #se encripta para compararla con la de la base de datos
             $password = $datos['password'];
             
+            /* se sacan los datos del usuario recibido con el de la BD y se comprueba la password */
             $datos = $this->obtenerDatosUsuario($usuario);
             var_dump($datos); 
 
+            /* se envia la pass recibida mas la extraida de la DB */
             $password = parent::encriptar($password, $datos[0]['password']);
             var_dump($password);
             #ver si hay datos
@@ -35,8 +36,8 @@ class auth extends conexion{
                 if ($password == $datos[0]['password']) {
                     
                     if ($datos[0]['Estado'] == 'Activo') {
-                        #crear el token
-                        $verificar = $this->insertarToken($datos[0]['UsuarioId']);
+                        #crear el token para el id del usuario que intenta loguearse
+                        $verificar = $this->insertarToken($datos[0]['id']);
                         if ($verificar) {
                             #si se pudo guardar
                             $result = $_respuestas->response;
@@ -65,7 +66,7 @@ class auth extends conexion{
 
     #ibtener datos del usuario
     private function obtenerDatosUsuario($correo){
-        $query = "SELECT email,password FROM usuarios WHERE email = '$correo'";
+        $query = "SELECT email,password,Estado,id FROM usuarios WHERE email = '$correo'";
         $datos = parent::obtenerDatos($query);
 
         #para confirmar si existe ese usuario de la consulta de arriba, como devuelve solo 
