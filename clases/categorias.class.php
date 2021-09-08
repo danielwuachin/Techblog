@@ -1,44 +1,46 @@
 <?php
 
-require_once "helpers.class.php";
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
-class usuarios extends conexion{
+class Categorias extends conexion{
 
     
-    private $table = "usuarios";
+    private $table = "categorias";
     private $id = "";
 
     private $nombre = "";
     private $apellidos = "";
-    private $password = "";
-    private $fecha = "";
-    private $email = "";
-    private $token = "";
-    private $icon_path= "";
-    private $estado = "Activo";
-    private $role = "user";
 
 
-    public function obtenerEmail(){
-        $query = "SELECT email FROM ". $this->table;
+    #PARA EL GET!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #se iguala pagina a 1 para que sea el predeterminado
+    public function listaCategorias($pagina = 1){
+
+        $inicio = 0;
+        $cantidad = 100;
+        if ($pagina > 1) {
+            $inicio = ($cantidad *($pagina - 1 )) +1;
+            $cantidad = $cantidad * $pagina;
+        }
+        $query = "SELECT id, Nombre, DNI,Telefono,email FROM ". $this->table . " LIMIT $inicio,$cantidad";
+        $datos = parent::obtenerDatos($query);
+        return $datos;
+    }
+
+
+
+    public function obtenerCategoria($id){
+        $query = "SELECT * FROM ". $this->table ." WHERE  id = '$id'";
         return parent::obtenerDatos($query);
     }
 
-    public function validarEmail($incomingEmail){
-        $emails = $this->obtenerEmail();
-
-        $var = 0;
-        foreach($emails as $email){
-            
-            if($incomingEmail == $email['email']){
-                $var = 1;
-                return $var;
-            }
-        }
+    /* verificar si es admin */
+    public function isAdmin($postid){
+        $query = "SELECT 'ROLE' FROM ". $this->table . "WHERE id = '$postid'";
+        $resultado = parent::obtenerDatos($query);
+        var_dump($resultado);
     }
-
 
 
     #PARA EL POST-----------  HACER CREATE
@@ -54,9 +56,7 @@ class usuarios extends conexion{
             $this->token = $datos['token'];
             $arrayToken = $this->buscarToken();
             if ($arrayToken) {
-                
 
-                
                 #comprobamos si todos los datos requeridos nos llegaron
                 if (!isset($datos['nombre']) || !isset($datos['password']) || !isset($datos['email'])) {
                     return $_respuestas->error_400();
@@ -80,14 +80,9 @@ class usuarios extends conexion{
                     
                     
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $email = mysqli_real_escape_string($conexion, $datos['email']);
                     
-                    $comprobarEmail = $this->validarEmail($email);
-                    if ($comprobarEmail == 1) {
-                        return $_respuestas->error_500("Este email ya existe, por favor cambielo");
-                    }else{
                         
-                        $this->email = $email;
+                        
                         /* procesamiento de la imagen */
                         if (isset($datos['icon_path'])) {
                             
@@ -96,7 +91,7 @@ class usuarios extends conexion{
                             $this->icon_path = $resp;
                         }
 
-                        $resp = $this->insertarUsuario();
+                        $resp = $this->insertarCategoria();
                         /* var_dump($resp); */
                         if ($resp) {
                             $respuesta = $_respuestas->response;
@@ -107,7 +102,7 @@ class usuarios extends conexion{
                         }else{
                             return $_respuestas->error_500();
                         }
-                    }
+                    
 
                 }
 
@@ -147,7 +142,7 @@ class usuarios extends conexion{
 
 
 
-    private function insertarUsuario(){
+    private function insertarCategoria(){
         $query = "INSERT INTO " . $this->table ." (nombre, apellidos, email, password, icon_path, fecha, Estado, ROLE) 
         VALUES
         ('" . $this->nombre . "', '" . $this->apellidos . "', '" . $this->email . "', 
@@ -202,14 +197,9 @@ class usuarios extends conexion{
                     if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
                     if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
 
-                    $email = mysqli_real_escape_string($conexion, $datos['email']);
                     
-                    $comprobarEmail = $this->validarEmail($email);
-                    if ($comprobarEmail == 1) {
-                        return $_respuestas->error_500("Este email ya existe, por favor cambielo");
-                    }else{
                         
-                        $this->email = $email;
+                        
                         /* procesamiento de la imagen */
                         if (isset($datos['icon_path'])) {
                             
@@ -219,7 +209,7 @@ class usuarios extends conexion{
                         }
 
                         #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->modificarUsuario();
+                        $resp = $this->modificarCategoria();
                         var_dump($resp);
                         if ($resp) {
                             $respuesta = $_respuestas->response;
@@ -230,7 +220,7 @@ class usuarios extends conexion{
                         }else{
                             return $_respuestas->error_500();
                         }
-                    }
+                    
                 }
 
 
@@ -242,7 +232,7 @@ class usuarios extends conexion{
 
 
     
-    private function modificarUsuario(){
+    private function modificarCategoria(){
         
         $query = "UPDATE " . $this->table ." SET nombre = '" . $this->nombre . "', apellidos =  '" . $this->apellidos . "',
         email = '" . $this->email . "', password = '" . $this->password . "', icon_path = '" . $this->icon_path . "', 
@@ -289,7 +279,7 @@ class usuarios extends conexion{
 
 
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->eliminarUsuario();
+                    $resp = $this->eliminarCategoria();
                     if ($resp) {
                         $respuesta = $_respuestas->response;
                         $respuesta['result'] = array (
@@ -307,7 +297,7 @@ class usuarios extends conexion{
     }
 
 
-    private function eliminarUsuario(){
+    private function eliminarCategoria(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 

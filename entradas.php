@@ -1,49 +1,48 @@
 <?php
-require_once "clases/usuarios.class.php";
+require_once "clases/entradas.class.php";
 require_once "clases/respuestas.class.php";
 
 
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
-$_usuarios = new usuarios;
+$_Entradas = new Entradas;
 $_respuestas = new respuestas;
-$_helpers = new Helpers;
 
-#para los READ, YA SEAN todos los Usuarios o solo uno
+#para los READ, YA SEAN todos los Entradas o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaUsuarios = $_helpers->listar($pagina, "usuarios");
+        $listaEntradas = $_Entradas->listaEntradas($pagina);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($listaUsuarios);
+        echo json_encode($listaEntradas);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
 
 
     }elseif(isset($_GET['id'])){
-        $usuarioId = $_GET['id'];
-        $datosUsuario = $_helpers->obtener($usuarioId, "usuarios");
+        $EntradaId = $_GET['id'];
+        $datosEntrada = $_Entradas->obtenerEntrada($EntradaId);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($datosUsuario);
+        echo json_encode($datosEntrada);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
     }else{
-        $all = $_helpers->obtenerAll("usuarios");
+        $emails = $_Entradas->obtenerEmail();
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($all);
+        echo json_encode($emails);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
@@ -60,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input");
 
     #enviamos esto al manejador
-    $datosArray = $_usuarios->post($postBody);
+    $datosArray = $_Entradas->post($postBody);
     
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -82,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input"); 
     
     #enviamos datos al manejador
-    $datosArray = $_usuarios->put($postBody);
+    $datosArray = $_Entradas->put($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -124,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     
         #enviamos datos al manejador
-    $datosArray = $_usuarios->delete($postBody);
+    $datosArray = $_Entradas->delete($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");

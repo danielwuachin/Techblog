@@ -1,35 +1,37 @@
 <?php
-require_once 'clases/pacientes.class.php';
-require_once 'clases/respuestas.class.php';
+require_once "clases/categorias.class.php";
+require_once "clases/respuestas.class.php";
 
+
+#instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
+$_Categorias = new Categorias;
 $_respuestas = new respuestas;
-$_pacientes = new pacientes;
 
-#para los READ, YA SEAN todos los pacientes o solo uno
+#para los READ, YA SEAN todos los Categorias o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaPacientes = $_pacientes->listaPacientes($pagina);
+        $listaCategorias = $_Categorias->listaCategorias($pagina);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($listaPacientes);
+        echo json_encode($listaCategorias);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
 
 
     }elseif(isset($_GET['id'])){
-        $pacienteId = $_GET['id'];
-        $datosPaciente = $_pacientes->obtenerPaciente($pacienteId);
+        $CategoriaId = $_GET['id'];
+        $datosCategoria = $_Categorias->obtenerCategoria($CategoriaId);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($datosPaciente);
+        echo json_encode($datosCategoria);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
@@ -46,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input");
 
     #enviamos esto al manejador
-    $datosArray = $_pacientes->post($postBody);
+    $datosArray = $_Categorias->post($postBody);
     
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -68,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input"); 
     
     #enviamos datos al manejador
-    $datosArray = $_pacientes->put($postBody);
+    $datosArray = $_Categorias->put($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -91,11 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     #RECIBIR LOS DATOS POR EL HEADER-------- si el frontend es con vuejs, los enviara por ahi
     $headers = getallheaders();
     /* print_r($headers);die(); */
-    if (isset($headers['token']) && isset($headers['pacienteid'])) {
+    if (isset($headers['token']) && isset($headers['id'])) {
         #recibimos los datos por el header
         $send = [
             "token" => $headers['token'],
-            "pacienteid" => $headers['pacienteid']
+            "id" => $headers['id']
         ];
         #ahora lo convertimos a un JSON para que sea usado
         
@@ -110,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     
         #enviamos datos al manejador
-    $datosArray = $_pacientes->delete($postBody);
+    $datosArray = $_Categorias->delete($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");

@@ -85,6 +85,21 @@
                 "pacienteId" : "" -> REQUERIDO
                 <br>
                 }
+                <p>
+                    
+
+"nombre" : "perraaa", <br/>
+"apellidos" : "rodriguez",<br/> 
+"email":"jakjsdhlkad@lkadsf@oma.com",<br/>
+"password" :"123456",<br/>
+"icon_path": "",<br/>
+"fecha": "2020-01-03",<br/>
+
+"Estado": "Activo",<br/>
+"token" : "ac9df1eb83738f5ef7bd8ceac80dd261" ,<br/>
+"id": "14"
+
+                </p>
                 ?>
             </code>
             <code>
