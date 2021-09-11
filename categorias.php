@@ -6,12 +6,14 @@ require_once "clases/respuestas.class.php";
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
 $_Categorias = new Categorias;
 $_respuestas = new respuestas;
+$_helpers = new Helpers;
+$tabla = 'categorias';
 
 #para los READ, YA SEAN todos los Categorias o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaCategorias = $_Categorias->listaCategorias($pagina);
+        $listaCategorias = $_helpers->listar($pagina, $tabla);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
@@ -25,13 +27,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     }elseif(isset($_GET['id'])){
         $CategoriaId = $_GET['id'];
-        $datosCategoria = $_Categorias->obtenerCategoria($CategoriaId);
+        $datosCategoria = $_helpers->obtener($CategoriaId, $tabla);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
         echo json_encode($datosCategoria);
+
+        #esto se manda siempre a la cabecera como una respuesta adecuada
+        http_response_code(200);
+    }else{
+        $allData = $_helpers->obtenerAll($tabla);
+        #esto se manda siempre a la cabecera como una respuesta adecuada
+        header("Content-Type: application/json");
+
+        #convertir json
+        echo json_encode($allData);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);

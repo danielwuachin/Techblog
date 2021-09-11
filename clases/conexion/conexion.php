@@ -78,7 +78,7 @@ class conexion{
     public function nonQueryId($sqlstr){
         $results = $this->conexion->query($sqlstr);
         $filas = $this->conexion->affected_rows;
-        var_dump($filas);
+        /* var_dump($results); */
 
         #esto lo que hace es que si se guardo algo, nos devuleve la fila afectada
         if($filas >=1){

@@ -2,49 +2,21 @@
 
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
+require_once "helpers.class.php";
 
 class Categorias extends conexion{
 
     
     private $table = "categorias";
     private $id = "";
+    private $genero = "";
+    private $token = "";
 
-    private $nombre = "";
-    private $apellidos = "";
-
-
-    #PARA EL GET!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #se iguala pagina a 1 para que sea el predeterminado
-    public function listaCategorias($pagina = 1){
-
-        $inicio = 0;
-        $cantidad = 100;
-        if ($pagina > 1) {
-            $inicio = ($cantidad *($pagina - 1 )) +1;
-            $cantidad = $cantidad * $pagina;
-        }
-        $query = "SELECT id, Nombre, DNI,Telefono,email FROM ". $this->table . " LIMIT $inicio,$cantidad";
-        $datos = parent::obtenerDatos($query);
-        return $datos;
-    }
-
-
-
-    public function obtenerCategoria($id){
-        $query = "SELECT * FROM ". $this->table ." WHERE  id = '$id'";
-        return parent::obtenerDatos($query);
-    }
-
-    /* verificar si es admin */
-    public function isAdmin($postid){
-        $query = "SELECT 'ROLE' FROM ". $this->table . "WHERE id = '$postid'";
-        $resultado = parent::obtenerDatos($query);
-        var_dump($resultado);
-    }
 
 
     #PARA EL POST-----------  HACER CREATE
     public function post($json){
+        $_helpers = new Helpers;
         $_respuestas = new respuestas;
         $datos = json_decode($json, true);
 
@@ -54,58 +26,44 @@ class Categorias extends conexion{
             return $_respuestas->error_401(); 
         }else{
             $this->token = $datos['token'];
-            $arrayToken = $this->buscarToken();
+            $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
 
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['nombre']) || !isset($datos['password']) || !isset($datos['email'])) {
-                    return $_respuestas->error_400();
+
+                /* COMPROBAMO SI ES ADMIN */
+                $token = $this->token;
+                $is_admin = $_helpers->isAdmin($token);
+                $admin_verify = $is_admin[0]['ROLE'];
+                var_dump($is_admin);
+
+                if($admin_verify != 'admin'){
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
 
-                    $conexion = $this->conexion;
-                    /* var_dump($conexion);die(); */
-                    #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
-
-                    /* encriptado de la contraseña */
-                    $password = mysqli_real_escape_string($conexion, $datos['password']);
-                    $password_segura = password_hash($password, PASSWORD_BCRYPT, ['cost' =>4]);
-                    $this->password = $password_segura;
-
-                    
-                    if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
-                    if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
-                    
-                    
-                    
-                    
-                    #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    
+                    #comprobamos si todos los datos requeridos nos llegaron
+                    if (!isset($datos['genero'])) {
+                        return $_respuestas->error_400();
+                    }else{
+    
+                        $conexion = $this->conexion;
+                        /* var_dump($conexion);die(); */
+                        #estos se dejan asi ya que en el if de arriba se confirma su existencia
+                        $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
                         
-                        
-                        /* procesamiento de la imagen */
-                        if (isset($datos['icon_path'])) {
-                            
-                            $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
-                            $resp = $this->procesaricon_path($icon_path);
-                            $this->icon_path = $resp;
-                        }
-
-                        $resp = $this->insertarCategoria();
-                        /* var_dump($resp); */
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $resp
-                            );
-                            return $respuesta;
-                        }else{
-                            return $_respuestas->error_500();
-                        }
-                    
-
+    
+                            $resp = $this->insertarCategoria();
+                            /* var_dump($resp); */
+                            if ($resp) {
+                                $respuesta = $_respuestas->response;
+                                $respuesta['result'] = array (
+                                    "id" => $resp
+                                );
+                                return $respuesta;
+                            }else{
+                                return $_respuestas->error_500();
+                            }
+                    }
                 }
-
 
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
@@ -114,39 +72,11 @@ class Categorias extends conexion{
     }
 
 
-    //se crea apellidos para la icon_path, DIR usa barras asi \ apuntando a la carpeta sin importar donde estes
-    private function procesaricon_path($img){
-        $apellidos = dirname(__DIR__). "\public\icon_path\\";
-        //se debe quitar el base64 de nuestra icon_pathbase64, primero lo que se quita y despues la icon_path
-        $partes = explode(";base64,", $img);
-
-        //ahorasacamos el texto del tipo de icon_path, png o jpg
-        $extension= explode('/',mime_content_type($img))[1];
-
-        //ahora pasamos el texto de la icon_path
-        $icon_path_base64 = base64_decode($partes[1]);
-
-        //luego almacenamos toda la apellidos, un string de nombre unico y la  extension
-        $file = $apellidos . uniqid() . "." . $extension;
-
-        //ahora, vamos a la apellidos y guardamos la icon_path
-        file_put_contents($file, $icon_path_base64);
-
-        //si quieres modificar la icon_path, se debe hacer aqui antes del return
-
-        //esto se hace para que guarde con las barras que son y que la apellidos sea real
-        $nuevaapellidos = str_replace('\\', '/', $file);
-        
-        return $nuevaapellidos;
-    }
-
-
 
     private function insertarCategoria(){
-        $query = "INSERT INTO " . $this->table ." (nombre, apellidos, email, password, icon_path, fecha, Estado, ROLE) 
+        $query = "INSERT INTO " . $this->table ." (genero) 
         VALUES
-        ('" . $this->nombre . "', '" . $this->apellidos . "', '" . $this->email . "', 
-        '" . $this->password . "', '" . $this->icon_path . "' , '" . $this->fecha . "', '" . $this->estado . "', '" . $this->role . "') ";
+        ('" . $this->genero . "') ";
         $resp = parent::nonQueryId($query);
         /* var_dump($query); */
         if ($resp) {
@@ -158,11 +88,9 @@ class Categorias extends conexion{
 
 
 
-
-
-
     #PARA HACER UPDATE-------- ----------------------------METODO PUT
     public function put($json){
+        $_helpers = new Helpers;
         $_respuestas = new respuestas;
         $datos = json_decode($json, true);
 
@@ -173,57 +101,43 @@ class Categorias extends conexion{
             return $_respuestas->error_401(); 
         }else{
             $this->token = $datos['token'];
-            $arrayToken = $this->buscarToken();
+            $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
-                
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['id'])) {
-                    return $_respuestas->error_400();
+
+
+                /* COMPROBAMO SI ES ADMIN */
+                $token = $this->token;
+                $is_admin = $_helpers->isAdmin($token);
+                $admin_verify = $is_admin[0]['ROLE'];
+                var_dump($is_admin);
+
+                if($admin_verify != 'admin'){
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
-
-                    $this->id = $datos["id"];
-                    $conexion = $this->conexion;
-                    /* var_dump($conexion);die(); */
-                    #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
-
-                    /* encriptado de la contraseña */
-                    $password = mysqli_real_escape_string($conexion, $datos['password']);
-                    $password_segura = password_hash($password, PASSWORD_BCRYPT, ['cost' =>4]);
-                    $this->password = $password_segura;
-
-                    
-
-                    if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
-                    if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
-
-                    
-                        
-                        
-                        /* procesamiento de la imagen */
-                        if (isset($datos['icon_path'])) {
-                            
-                            $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
-                            $resp = $this->procesaricon_path($icon_path);
-                            $this->icon_path = $resp;
-                        }
-
-                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->modificarCategoria();
-                        var_dump($resp);
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $resp
-                            );
-                            return $respuesta;
-                        }else{
-                            return $_respuestas->error_500();
-                        }
-                    
+                    #comprobamos si todos los datos requeridos nos llegaron
+                    if (!isset($datos['id'])) {
+                        return $_respuestas->error_400();
+                    }else{
+    
+                        $this->id = $datos["id"];
+                        $conexion = $this->conexion;
+    
+                        $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
+    
+                            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                            $resp = $this->modificarCategoria();
+                            var_dump($resp);
+                            if ($resp) {
+                                $respuesta = $_respuestas->response;
+                                $respuesta['result'] = array (
+                                    "id" => $resp
+                                );
+                                return $respuesta;
+                            }else{
+                                return $_respuestas->error_500();
+                            }
+                    }
                 }
-
-
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
             }
@@ -234,11 +148,8 @@ class Categorias extends conexion{
     
     private function modificarCategoria(){
         
-        $query = "UPDATE " . $this->table ." SET nombre = '" . $this->nombre . "', apellidos =  '" . $this->apellidos . "',
-        email = '" . $this->email . "', password = '" . $this->password . "', icon_path = '" . $this->icon_path . "', 
-        fecha = '" . $this->fecha . "', Estado = '" . $this->estado . "', ROLE = '" . $this->role . "'  
+        $query = "UPDATE " . $this->table ." SET genero = '" . $this->genero . "'
         WHERE id = '" . $this->id . "'";
-
         
         $resp = parent::nonQuery($query);
         
@@ -252,44 +163,52 @@ class Categorias extends conexion{
 
 
 
-
-
     #PARA BORRARR    --------------------------------------------------------------
     public function delete($json){
+        $_helpers = new Helpers;
         $_respuestas = new respuestas;
         $datos = json_decode($json, true);
-
-
-
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
             $this->token = $datos['token'];
-            $arrayToken = $this->buscarToken();
+            $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['id'])) {
-                    return $_respuestas->error_400();
+
+                /* COMPROBAMO SI ES ADMIN */
+                $token = $this->token;
+                $is_admin = $_helpers->isAdmin($token);
+                $admin_verify = $is_admin[0]['ROLE'];
+                var_dump($is_admin);
+
+                if($admin_verify != 'admin'){
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
-                    #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
-                    $this->id = $datos['id'];
-
-
-                    #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->eliminarCategoria();
-                    if ($resp) {
-                        $respuesta = $_respuestas->response;
-                        $respuesta['result'] = array (
-                            "id" => $this->id
-                        );
-                        return $respuesta;
+                    #comprobamos si todos los datos requeridos nos llegaron
+                    if (!isset($datos['id'])) {
+                        return $_respuestas->error_400();
                     }else{
-                        return $_respuestas->error_500();
-                    }
-                } 
+                        #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
+                        $this->id = $datos['id'];
+    
+    
+                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                        $resp = $this->eliminarCategoria();
+                        if ($resp) {
+                            $respuesta = $_respuestas->response;
+                            $respuesta['result'] = array (
+                                "id" => $this->id
+                            );
+                            return $respuesta;
+                        }else{
+                            return $_respuestas->error_500();
+                        }
+                    } 
+
+                }
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
             }
@@ -307,36 +226,7 @@ class Categorias extends conexion{
             return 0;
         }
     }
-
-
-    private function buscarToken(){
-        $query = "SELECT  tokenId, UsuarioId, Estado FROM usuarios_token WHERE Token = '" . $this->token . "' AND Estado = 'Activo'";
-        $resp = parent::obtenerDatos($query);
-
-        if ($resp) {
-            return $resp;
-        }else{
-            return 0;
-        }
-    }
-
-
-
-
-    #para actualizar el token cada vez que se realize una consulta
-    private function actualizarToken($tokenid){
-        $date = date("Y-m-d H:i");
-        $query = "UPDATE usuarios_token SET Fecha = '$date' WHERE tokenId = '$tokenid'";
-        $resp = parent::nonQuery($query);
-        if ($resp >= 1) {
-            return $resp;
-        }else{
-            return 0;
-        }
-    }
 }
-
-
 ?>
 
 

@@ -47,13 +47,13 @@ class usuarios extends conexion{
         $datos = json_decode($json, true);
 
 
-        #para comprobar si enviaron el token
+/*         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
             $this->token = $datos['token'];
             $arrayToken = $this->buscarToken();
-            if ($arrayToken) {
+            if ($arrayToken) { */
                 
 
                 
@@ -76,9 +76,7 @@ class usuarios extends conexion{
                     if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
                     if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
                     
-                    
-                    
-                    
+
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                     $email = mysqli_real_escape_string($conexion, $datos['email']);
                     
@@ -112,10 +110,10 @@ class usuarios extends conexion{
                 }
 
 
-            }else{
+            /* }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
-            }
-        }
+            } */
+        
     }
 
 
