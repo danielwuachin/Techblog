@@ -20,7 +20,7 @@
                 <br>
                 {
                 <br>
-                "usuario" :"", -> REQUERIDO
+                "EMAIL" :"", -> REQUERIDO
                 <br>
                 "password": "" -> REQUERIDO
                 <br>
@@ -86,7 +86,7 @@
                 <br>
                 }
                 <p>
-                    
+                <br>
 
 "nombre" : "perraaa", <br/>
 "apellidos" : "rodriguez",<br/> 
@@ -103,15 +103,13 @@
                 ?>
             </code>
             <code>
-                DELETE /pacientes
+                CATEGORIAS
                 <br>
                 {
-                <br>
-                "token" : "", -> REQUERIDO
-                <br>
-                "pacienteId" : "" -> REQUERIDO
-                <br>
-                }
+    "id": "8", <br>
+    "genero": "kung fu", <br> 
+    "token": "04a3e37583bb0cae43f5055964141148" <br>
+}
             </code>
         </div>
         hola index
