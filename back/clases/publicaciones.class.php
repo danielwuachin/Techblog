@@ -63,13 +63,13 @@ class Publicaciones extends conexion{
                     
                     
                     /* procesamiento de la imagen */
-                    if (isset($datos['image_path']) && !is_null($datos['image_path'])  ) {
-                        
+                    if (!empty($datos['image_path'])  ) {
+                        echo "si esta entrando"; 
                         $image_path = mysqli_real_escape_string($conexion, $datos['image_path']);
                         $resp = $_helpers->procesarimage_path($image_path);
                         $this->image_path = $resp;
                     }
-                    
+
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                     $resp = $this->insertarPublicacion();
                     var_dump($resp);
@@ -161,30 +161,28 @@ class Publicaciones extends conexion{
                 if (!isset($datos['id'])) {
                     return $_respuestas->error_400();
                 }else{
-
-                    $this->id = $datos["id"];
+                    
                     $conexion = $this->conexion;
+                    $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']);
-
-                    /* encriptado de la contraseña */
-                    $password = mysqli_real_escape_string($conexion, $datos['password']);
-                    $password_segura = password_hash($password, PASSWORD_BCRYPT, ['cost' =>4]);
-                    $this->password = $password_segura;
-
+                    if(isset($datos['usuario_id'])) { $this->usuario_id = mysqli_real_escape_string($conexion, $datos['usuario_id']); }
+                    if(isset($datos['categoria_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['categoria_id']); }
+                    if(isset($datos['plataforma_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['plataforma_id']); }
                     
-
+                    
+                    if(isset($datos['titulo'])) { $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']); }
                     if(isset($datos['descripcion'])) { $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); }
                     if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
 
-                        /* procesamiento de la imagen */
-                        if (isset($datos['image_path'])) {
-                            
-                            $image_path = mysqli_real_escape_string($conexion, $datos['image_path']);
-                            $resp = $this->procesarimage_path($image_path);
-                            $this->image_path = $resp;
-                        }
+                    
+                    
+                    /* procesamiento de la imagen */
+                    if (isset($datos['image_path']) && !empty($datos['image_path'])  ) {
+                        $image_path = mysqli_real_escape_string($conexion, $datos['image_path']);
+                        $resp = $_helpers->procesarimage_path($image_path);
+                        $this->image_path = $resp;
+                    }
 
                         #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                         $resp = $this->modificarPublicacion();
@@ -213,8 +211,8 @@ class Publicaciones extends conexion{
     private function modificarPublicacion(){
         
         $query = "UPDATE " . $this->table ." SET titulo = '" . $this->titulo . "', descripcion =  '" . $this->descripcion . "',
-        email = '" . $this->email . "', password = '" . $this->password . "', image_path = '" . $this->image_path . "', 
-        fecha = '" . $this->fecha . "', Estado = '" . $this->estado . "', ROLE = '" . $this->role . "'  
+        usuario_id = '" . $this->usuario_id . "', categoria_id = '" . $this->categoria_id . "', image_path = '" . $this->image_path . "', 
+        fecha = '" . $this->fecha . "', plataforma_id = '" . $this-> plataforma_id . "'  
         WHERE id = '" . $this->id . "'";
 
         
@@ -285,36 +283,9 @@ class Publicaciones extends conexion{
             return 0;
         }
     }
-
-/* 
-    private function buscarToken(){
-        $query = "SELECT  tokenId, UsuarioId, Estado FROM usuarios_token WHERE Token = '" . $this->token . "' AND Estado = 'Activo'";
-        $resp = parent::obtenerDatos($query);
-
-        if ($resp) {
-            return $resp;
-        }else{
-            return 0;
-        }
-    }
-
-
-
-
-    #para actualizar el token cada vez que se realize una consulta
-    private function actualizarToken($tokenid){
-        $date = date("Y-m-d H:i");
-        $query = "UPDATE usuarios_token SET Fecha = '$date' WHERE tokenId = '$tokenid'";
-        $resp = parent::nonQuery($query);
-        if ($resp >= 1) {
-            return $resp;
-        }else{
-            return 0;
-        }
-    } */
 }
 
 
-?>
+
 
 
