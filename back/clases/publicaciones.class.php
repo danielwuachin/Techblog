@@ -13,9 +13,9 @@ class Publicaciones extends conexion{
     private $titulo = "";
     private $descripcion = "";
     
-    private $usuario_id = "";
-    private $categoria_id = "";
-    private $plataforma_id = "";
+    private $usuario_id = "0";
+    private $categoria_id = "0";
+    private $plataforma_id = "0";
     
     private $image_path= "";
     private $fecha = "";
@@ -72,7 +72,7 @@ class Publicaciones extends conexion{
                     
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                     $resp = $this->insertarPublicacion();
-                    /* var_dump($resp); */
+                    var_dump($resp);
                     if ($resp) {
                         $respuesta = $_respuestas->response;
                         $respuesta['result'] = array (
@@ -128,7 +128,8 @@ class Publicaciones extends conexion{
         ( '" . $this->usuario_id . "', '" . $this->categoria_id . "', '" . $this->plataforma_id . "' , '" . $this->image_path . "' , 
         '" . $this->titulo . "', '" . $this->descripcion . "', '" . $this->fecha . "') ";
         $resp = parent::nonQueryId($query);
-        /* var_dump($query); */
+        var_dump($query);
+        var_dump($resp);
         if ($resp) {
             return $resp;
         }else{
@@ -177,14 +178,6 @@ class Publicaciones extends conexion{
                     if(isset($datos['descripcion'])) { $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); }
                     if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
 
-                    $email = mysqli_real_escape_string($conexion, $datos['email']);
-                    
-                    $comprobarEmail = $this->validarEmail($email);
-                    if ($comprobarEmail == 1) {
-                        return $_respuestas->error_500("Este email ya existe, por favor cambielo");
-                    }else{
-                        
-                        $this->email = $email;
                         /* procesamiento de la imagen */
                         if (isset($datos['image_path'])) {
                             
@@ -206,8 +199,8 @@ class Publicaciones extends conexion{
                             return $_respuestas->error_500();
                         }
                     }
-                }
-
+                
+                
 
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
