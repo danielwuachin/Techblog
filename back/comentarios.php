@@ -4,14 +4,15 @@ require_once "clases/respuestas.class.php";
 
 
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
-$_Comentarios = new Comentarios;
+$_comentarios = new Comentarios;
 $_respuestas = new respuestas;
+$_helpers = new Helpers;
 
 #para los READ, YA SEAN todos los Comentarios o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaComentarios = $_Comentarios->listaComentarios($pagina);
+        $listaComentarios = $_helpers->listar($pagina, "comentarios");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
@@ -24,8 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
     }elseif(isset($_GET['id'])){
-        $ComentarioId = $_GET['id'];
-        $datosComentario = $_Comentarios->obtenerComentario($ComentarioId);
+        $comentarioId = $_GET['id'];
+        $datosComentario = $_helpers->obtener($comentarioId, "comentarios");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
@@ -36,13 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
     }else{
-        $emails = $_Comentarios->obtenerEmail();
+        $all = $_helpers->obtenerAll("comentarios");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($emails);
+        echo json_encode($all);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
@@ -59,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input");
 
     #enviamos esto al manejador
-    $datosArray = $_Comentarios->post($postBody);
+    $datosArray = $_comentarios->post($postBody);
     
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -81,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input"); 
     
     #enviamos datos al manejador
-    $datosArray = $_Comentarios->put($postBody);
+    $datosArray = $_comentarios->put($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -123,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     
         #enviamos datos al manejador
-    $datosArray = $_Comentarios->delete($postBody);
+    $datosArray = $_comentarios->delete($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
