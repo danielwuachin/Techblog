@@ -4,14 +4,14 @@ require_once "helpers.class.php";
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
-class Comentarios extends conexion{
+class Subcomentarios extends conexion{
 
     
-    private $table = "comentarios";
+    private $table = "subcomentarios";
     private $id = "";
 
     private $usuario_id = "";
-    private $publicacion_id = "";
+    private $comentario_id = "";
 
     private $contenido = "";
 
@@ -40,7 +40,7 @@ class Comentarios extends conexion{
 
                 
                 #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['contenido']) || !isset($datos['publicacion_id']) 
+                if (!isset($datos['contenido']) || !isset($datos['comentario_id']) 
                 || !isset($datos['usuario_id']) || !isset($datos['fecha'])) {
                     return $_respuestas->error_400();
                 }else{
@@ -48,14 +48,14 @@ class Comentarios extends conexion{
                     $conexion = $this->conexion;
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->publicacion_id = mysqli_real_escape_string($conexion, $datos['publicacion_id']);
+                    $this->comentario_id = mysqli_real_escape_string($conexion, $datos['comentario_id']);
                     $this->usuario_id = mysqli_real_escape_string($conexion, $datos['usuario_id']);
                     $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
                     $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
                     
 
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->insertarComentario();
+                    $resp = $this->insertarSubcomentario();
                     var_dump($resp);
                     if ($resp) {
                         $respuesta = $_respuestas->response;
@@ -79,10 +79,10 @@ class Comentarios extends conexion{
 
 
 
-    private function insertarComentario(){
-        $query = "INSERT INTO " . $this->table ." (usuario_id, publicacion_id, contenido,  fecha) 
+    private function insertarSubcomentario(){
+        $query = "INSERT INTO " . $this->table ." (usuario_id, comentario_id, contenido,  fecha) 
         VALUES
-        ( '" . $this->usuario_id . "', '" . $this->publicacion_id . "',
+        ( '" . $this->usuario_id . "', '" . $this->comentario_id . "',
         '" . $this->contenido . "', '" . $this->fecha . "') ";
         $resp = parent::nonQueryId($query);
         var_dump($query);
@@ -116,13 +116,13 @@ class Comentarios extends conexion{
                 
                 #comprobamos si todos los datos requeridos nos llegaron
                 if (!isset($datos['id'])) {
-                    return $_respuestas->error_400('no has enviado el id del comentario a modificar');
+                    return $_respuestas->error_400('no has enviado el id del subcomentario a modificar');
                 }else{
                     
 
                 
                 #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['contenido']) || !isset($datos['publicacion_id']) 
+                if (!isset($datos['contenido']) || !isset($datos['comentario_id']) 
                 || !isset($datos['usuario_id']) || !isset($datos['fecha'])) {
                     return $_respuestas->error_400();
                 }else{
@@ -131,13 +131,13 @@ class Comentarios extends conexion{
                     $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->publicacion_id = mysqli_real_escape_string($conexion, $datos['publicacion_id']);
+                    $this->comentario_id = mysqli_real_escape_string($conexion, $datos['comentario_id']);
                     $this->usuario_id = mysqli_real_escape_string($conexion, $datos['usuario_id']);
                     $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
                     $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
                     
                         #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->modificarComentario();
+                        $resp = $this->modificarSubcomentario();
                         var_dump($resp);
                         if ($resp) {
                             $respuesta = $_respuestas->response;
@@ -160,10 +160,10 @@ class Comentarios extends conexion{
 
 
     
-    private function modificarComentario(){
+    private function modificarSubcomentario(){
         
         $query = "UPDATE " . $this->table ." SET contenido =  '" . $this->contenido . "',
-        usuario_id = '" . $this->usuario_id . "', publicacion_id = '" . $this->publicacion_id . "',
+        usuario_id = '" . $this->usuario_id . "', comentario_id = '" . $this->comentario_id . "',
         fecha = '" . $this->fecha . "'
         WHERE id = '" . $this->id . "'";
 
@@ -207,7 +207,7 @@ class Comentarios extends conexion{
 
 
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->eliminarComentario();
+                    $resp = $this->eliminarSubcomentario();
                     if ($resp) {
                         $respuesta = $_respuestas->response;
                         $respuesta['result'] = array (
@@ -225,7 +225,7 @@ class Comentarios extends conexion{
     }
 
 
-    private function eliminarComentario(){
+    private function eliminarSubcomentario(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 
