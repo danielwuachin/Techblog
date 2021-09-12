@@ -44,104 +44,63 @@ class usuarios extends conexion{
     #PARA EL POST-----------  HACER CREATE
     public function post($json){
         $_respuestas = new respuestas;
+        $_helpers = new Helpers;
         $datos = json_decode($json, true);
-
-
-/*         #para comprobar si enviaron el token
-        if (!isset($datos['token'])) {
-            return $_respuestas->error_401(); 
+                
+        #comprobamos si todos los datos requeridos nos llegaron
+        if (!isset($datos['nombre']) || !isset($datos['password']) || !isset($datos['email'])) {
+            return $_respuestas->error_400();
         }else{
-            $this->token = $datos['token'];
-            $arrayToken = $this->buscarToken();
-            if ($arrayToken) { */
+
+            $conexion = $this->conexion;
+            /* var_dump($conexion);die(); */
+            #estos se dejan asi ya que en el if de arriba se confirma su existencia
+            $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
+
+            /* encriptado de la contraseña */
+            $password = mysqli_real_escape_string($conexion, $datos['password']);
+            $password_segura = password_hash($password, PASSWORD_BCRYPT, ['cost' =>4]);
+            $this->password = $password_segura;
+
+            
+            if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
+            if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
+            
+
+            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+            $email = mysqli_real_escape_string($conexion, $datos['email']);
+            
+            $comprobarEmail = $this->validarEmail($email);
+            if ($comprobarEmail == 1) {
+                return $_respuestas->error_500("Este email ya existe, por favor cambielo");
+            }else{
                 
-
-                
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['nombre']) || !isset($datos['password']) || !isset($datos['email'])) {
-                    return $_respuestas->error_400();
-                }else{
-
-                    $conexion = $this->conexion;
-                    /* var_dump($conexion);die(); */
-                    #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
-
-                    /* encriptado de la contraseña */
-                    $password = mysqli_real_escape_string($conexion, $datos['password']);
-                    $password_segura = password_hash($password, PASSWORD_BCRYPT, ['cost' =>4]);
-                    $this->password = $password_segura;
-
+                $this->email = $email;
+                /* procesamiento de la imagen */
+                if (isset($datos['icon_path']) && !empty($datos['icon_path'])) {
                     
-                    if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
-                    if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
-                    
-
-                    #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $email = mysqli_real_escape_string($conexion, $datos['email']);
-                    
-                    $comprobarEmail = $this->validarEmail($email);
-                    if ($comprobarEmail == 1) {
-                        return $_respuestas->error_500("Este email ya existe, por favor cambielo");
-                    }else{
-                        
-                        $this->email = $email;
-                        /* procesamiento de la imagen */
-                        if (isset($datos['icon_path'])) {
-                            
-                            $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
-                            $resp = $this->procesaricon_path($icon_path);
-                            $this->icon_path = $resp;
-                        }
-
-                        $resp = $this->insertarUsuario();
-                        /* var_dump($resp); */
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $resp
-                            );
-                            return $respuesta;
-                        }else{
-                            return $_respuestas->error_500();
-                        }
-                    }
-
+                    $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
+                    $resp = $_helpers->procesarimage_path($icon_path);
+                    $this->icon_path = $resp;
                 }
 
+                $resp = $this->insertarUsuario();
+                /* var_dump($resp); */
+                if ($resp) {
+                    $respuesta = $_respuestas->response;
+                    $respuesta['result'] = array (
+                        "id" => $resp
+                    );
+                    return $respuesta;
+                }else{
+                    return $_respuestas->error_500();
+                }
+            }
 
-            /* }else{
-                return $_respuestas->error_401("el token que se envio es invalido o caduco");
-            } */
-        
+        }
+
     }
 
-
-    //se crea apellidos para la icon_path, DIR usa barras asi \ apuntando a la carpeta sin importar donde estes
-    private function procesaricon_path($img){
-        $apellidos = dirname(__DIR__). "\public\icon_path\\";
-        //se debe quitar el base64 de nuestra icon_pathbase64, primero lo que se quita y despues la icon_path
-        $partes = explode(";base64,", $img);
-
-        //ahorasacamos el texto del tipo de icon_path, png o jpg
-        $extension= explode('/',mime_content_type($img))[1];
-
-        //ahora pasamos el texto de la icon_path
-        $icon_path_base64 = base64_decode($partes[1]);
-
-        //luego almacenamos toda la apellidos, un string de nombre unico y la  extension
-        $file = $apellidos . uniqid() . "." . $extension;
-
-        //ahora, vamos a la apellidos y guardamos la icon_path
-        file_put_contents($file, $icon_path_base64);
-
-        //si quieres modificar la icon_path, se debe hacer aqui antes del return
-
-        //esto se hace para que guarde con las barras que son y que la apellidos sea real
-        $nuevaapellidos = str_replace('\\', '/', $file);
-        
-        return $nuevaapellidos;
-    }
 
 
 
@@ -167,16 +126,15 @@ class usuarios extends conexion{
     #PARA HACER UPDATE-------- ----------------------------METODO PUT
     public function put($json){
         $_respuestas = new respuestas;
+        $_helpers = new Helpers;
         $datos = json_decode($json, true);
 
-
-
-        #para comprobar si enviaron el token!!!!
+        #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
             $this->token = $datos['token'];
-            $arrayToken = $this->buscarToken();
+            $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
                 #comprobamos si todos los datos requeridos nos llegaron
@@ -212,7 +170,7 @@ class usuarios extends conexion{
                         if (isset($datos['icon_path'])) {
                             
                             $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
-                            $resp = $this->procesaricon_path($icon_path);
+                            $resp = $_helpers->procesarimage_path($icon_path);
                             $this->icon_path = $resp;
                         }
 
@@ -265,17 +223,15 @@ class usuarios extends conexion{
     #PARA BORRARR    --------------------------------------------------------------
     public function delete($json){
         $_respuestas = new respuestas;
+        $_helpers = new Helpers;
         $datos = json_decode($json, true);
-
-
-
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
             $this->token = $datos['token'];
-            $arrayToken = $this->buscarToken();
+            $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
                 #comprobamos si todos los datos requeridos nos llegaron
@@ -317,31 +273,12 @@ class usuarios extends conexion{
     }
 
 
-    private function buscarToken(){
-        $query = "SELECT  tokenId, UsuarioId, Estado FROM usuarios_token WHERE Token = '" . $this->token . "' AND Estado = 'Activo'";
-        $resp = parent::obtenerDatos($query);
-
-        if ($resp) {
-            return $resp;
-        }else{
-            return 0;
-        }
-    }
 
 
 
 
-    #para actualizar el token cada vez que se realize una consulta
-    private function actualizarToken($tokenid){
-        $date = date("Y-m-d H:i");
-        $query = "UPDATE usuarios_token SET Fecha = '$date' WHERE tokenId = '$tokenid'";
-        $resp = parent::nonQuery($query);
-        if ($resp >= 1) {
-            return $resp;
-        }else{
-            return 0;
-        }
-    }
+
+
 }
 
 
