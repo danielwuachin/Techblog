@@ -106,10 +106,21 @@
                 CATEGORIAS
                 <br>
                 {
-    "id": "8", <br>
-    "genero": "kung fu", <br> 
-    "token": "04a3e37583bb0cae43f5055964141148" <br>
-}
+                    "id": "8", <br>
+                    "genero": "kung fu", <br> 
+                    "token": "04a3e37583bb0cae43f5055964141148" <br>
+                }
+            </code>
+
+
+            <code>
+                PLATAFORMAS
+                <br>
+                {
+                    "id": "8", <br>
+                    "genero": "PS3", <br> 
+                    "token": "04a3e37583bb0cae43f5055964141148" <br>
+                }
             </code>
         </div>
         hola index
