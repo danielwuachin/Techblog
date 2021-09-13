@@ -34,7 +34,7 @@ class Helpers extends conexion{
     public function isAdmin($token, $tabla = "usuarios"){
         $query = "SELECT ROLE FROM $tabla WHERE id = ( SELECT UsuarioId FROM usuarios_token WHERE Token = '". $token ."' ) ";
         $resultado = parent::obtenerDatos($query);
-        var_dump($resultado);
+        
         return $resultado;
     }
 
@@ -111,6 +111,36 @@ class Helpers extends conexion{
             
             return $nuevaimage_path;
         }
+
+
+
+    public function usuario_id($id, $tabla){
+        $query = "SELECT usuario_id FROM $tabla WHERE id = '". $id . "'";
+        var_dump($query);
+        $respuesta = parent::obtenerDatos($query);
+        $resp = intval($respuesta[0]['usuario_id']);
+
+        var_dump($respuesta);
+        if ($resp){
+            return $resp;
+        }else{
+            return 0;
+        }
+        
+    }
     
-    
+
+
+    public function usuarioToken($token){
+        $query = "SELECT UsuarioId FROM usuarios_token WHERE Token = '".$token."' ";
+
+        $respuesta = parent::obtenerDatos($query);
+        $resp = intval($respuesta[0]['UsuarioId']);
+        var_dump($resp);
+        if ($resp){
+            return $resp;
+        }else{
+            return 0;
+        }
+    }
 }

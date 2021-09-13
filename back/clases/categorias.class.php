@@ -11,6 +11,7 @@ class Categorias extends conexion{
     private $id = "";
     private $genero = "";
     private $token = "";
+    private $usuario_id = "";
 
 
 
@@ -49,19 +50,21 @@ class Categorias extends conexion{
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
                         $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
-                        
-    
-                            $resp = $this->insertarCategoria();
-                            /* var_dump($resp); */
-                            if ($resp) {
-                                $respuesta = $_respuestas->response;
-                                $respuesta['result'] = array (
-                                    "id" => $resp
-                                );
-                                return $respuesta;
-                            }else{
-                                return $_respuestas->error_500();
-                            }
+                        $this->usuario_id = $_helpers->usuarioToken($token);
+
+                        var_dump($this->usuario_id);
+
+                        $resp = $this->insertarCategoria();
+                        /* var_dump($resp); */
+                        if ($resp) {
+                            $respuesta = $_respuestas->response;
+                            $respuesta['result'] = array (
+                                "id" => $resp
+                            );
+                            return $respuesta;
+                        }else{
+                            return $_respuestas->error_500();
+                        }
                     }
                 }
 
@@ -74,11 +77,11 @@ class Categorias extends conexion{
 
 
     private function insertarCategoria(){
-        $query = "INSERT INTO " . $this->table ." (genero) 
+        $query = "INSERT INTO " . $this->table ." (usuario_id, genero) 
         VALUES
-        ('" . $this->genero . "') ";
+        ( '" .$this->usuario_id ."', '" . $this->genero . "' ) ";
         $resp = parent::nonQueryId($query);
-        /* var_dump($query); */
+        var_dump($query);
         if ($resp) {
             return $resp;
         }else{
@@ -109,7 +112,7 @@ class Categorias extends conexion{
                 $token = $this->token;
                 $is_admin = $_helpers->isAdmin($token);
                 $admin_verify = $is_admin[0]['ROLE'];
-                var_dump($is_admin);
+                
 
                 if($admin_verify != 'admin'){
                     return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
@@ -118,12 +121,20 @@ class Categorias extends conexion{
                     if (!isset($datos['id'])) {
                         return $_respuestas->error_400();
                     }else{
-    
-                        $this->id = $datos["id"];
-                        $conexion = $this->conexion;
-    
-                        $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
-    
+                        
+
+                        $usuarioToken = $_helpers->usuarioToken($token);
+                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        
+                        if ($usuarioToken != $this->usuario_id) {
+                            return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
+                        }else{
+                            
+                            $this->id = $datos["id"];
+                            $conexion = $this->conexion;
+        
+                            $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
+        
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                             $resp = $this->modificarCategoria();
                             var_dump($resp);
@@ -136,6 +147,8 @@ class Categorias extends conexion{
                             }else{
                                 return $_respuestas->error_500();
                             }
+                        }
+
                     }
                 }
             }else{
@@ -191,22 +204,33 @@ class Categorias extends conexion{
                     if (!isset($datos['id'])) {
                         return $_respuestas->error_400();
                     }else{
-                        #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
-                        $this->id = $datos['id'];
-    
-    
-                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->eliminarCategoria();
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $this->id
-                            );
-                            return $respuesta;
+
+                        $usuarioToken = $_helpers->usuarioToken($token);
+                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        
+                        if ($usuarioToken != $this->usuario_id) {
+                            return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
                         }else{
-                            return $_respuestas->error_500();
+                            #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
+                            $this->id = $datos['id'];
+        
+                            /* $usuario = $_helpers->comprobarUsuario($this->table, $token);
+                            $usuarioComprobado = $usuario[0]['id'];
+                            var_dump($usuario);die(); */
+                            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                            $resp = $this->eliminarCategoria();
+                            if ($resp) {
+                                $respuesta = $_respuestas->response;
+                                $respuesta['result'] = array (
+                                    "id" => $this->id
+                                );
+                                return $respuesta;
+                            }else{
+                                return $_respuestas->error_500();
+                            }
                         }
                     } 
+
 
                 }
             }else{
