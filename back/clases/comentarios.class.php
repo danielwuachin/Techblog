@@ -202,20 +202,27 @@ class Comentarios extends conexion{
                 if (!isset($datos['id'])) {
                     return $_respuestas->error_400();
                 }else{
-                    #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
-                    $this->id = $datos['id'];
-
-
-                    #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->eliminarComentario();
-                    if ($resp) {
-                        $respuesta = $_respuestas->response;
-                        $respuesta['result'] = array (
-                            "id" => $this->id
-                        );
-                        return $respuesta;
+                    $usuarioToken = $_helpers->usuarioToken($this->token);
+                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                    
+                    if ($usuarioToken != $this->usuario_id) {
+                        return $_respuestas->error_401('no tienes permisos para eliminar este comentario');
                     }else{
-                        return $_respuestas->error_500();
+                        #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
+                        $this->id = $datos['id'];
+
+
+                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                        $resp = $this->eliminarComentario();
+                        if ($resp) {
+                            $respuesta = $_respuestas->response;
+                            $respuesta['result'] = array (
+                                "id" => $this->id
+                            );
+                            return $respuesta;
+                        }else{
+                            return $_respuestas->error_500();
+                        }
                     }
                 } 
             }else{
