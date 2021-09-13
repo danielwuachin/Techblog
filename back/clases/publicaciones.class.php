@@ -40,49 +40,58 @@ class Publicaciones extends conexion{
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
+                 /* COMPROBAMO SI ES ADMIN */
+                $token = $this->token;
+                $is_admin = $_helpers->isAdmin($token);
+                $admin_verify = $is_admin[0]['ROLE'];
+                var_dump($is_admin);
 
-                
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['titulo']) || !isset($datos['descripcion']) || !isset($datos['image_path']) ) {
-                    return $_respuestas->error_400();
+                if($admin_verify != 'admin' || $admin_verify != 'publicador'){
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
-
-                    $conexion = $this->conexion;
-                    /* var_dump($conexion);die(); */
-                    #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']);
-                    $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); 
-                    $this->usuario_id = $_helpers->usuarioToken($this->token);
-
-                    
-                    if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
-                    if(isset($datos['categoria_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['categoria_id']); }
-                    if(isset($datos['plataforma_id'])) { $this->plataforma_id = mysqli_real_escape_string($conexion, $datos['plataforma_id']); }
-
-                    
-                    
-                    /* procesamiento de la imagen */
-                    if (!empty($datos['image_path'])  ) {
-                        echo "si esta entrando"; 
-                        $image_path = mysqli_real_escape_string($conexion, $datos['image_path']);
-                        $resp = $_helpers->procesarimage_path($image_path);
-                        $this->image_path = $resp;
-                    }
-
-                    #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->insertarPublicacion();
-                    var_dump($resp);
-                    if ($resp) {
-                        $respuesta = $_respuestas->response;
-                        $respuesta['result'] = array (
-                            "id" => $resp
-                        );
-                        return $respuesta;
+                
+                    #comprobamos si todos los datos requeridos nos llegaron
+                    if (!isset($datos['titulo']) || !isset($datos['descripcion']) || !isset($datos['image_path']) ) {
+                        return $_respuestas->error_400();
                     }else{
-                        return $_respuestas->error_500();
-                    }
-                    
 
+                        $conexion = $this->conexion;
+                        /* var_dump($conexion);die(); */
+                        #estos se dejan asi ya que en el if de arriba se confirma su existencia
+                        $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']);
+                        $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); 
+                        $this->usuario_id = $_helpers->usuarioToken($this->token);
+
+                        
+                        if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
+                        if(isset($datos['categoria_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['categoria_id']); }
+                        if(isset($datos['plataforma_id'])) { $this->plataforma_id = mysqli_real_escape_string($conexion, $datos['plataforma_id']); }
+
+                        
+                        
+                        /* procesamiento de la imagen */
+                        if (!empty($datos['image_path'])  ) {
+                            echo "si esta entrando"; 
+                            $image_path = mysqli_real_escape_string($conexion, $datos['image_path']);
+                            $resp = $_helpers->procesarimage_path($image_path);
+                            $this->image_path = $resp;
+                        }
+
+                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                        $resp = $this->insertarPublicacion();
+                        var_dump($resp);
+                        if ($resp) {
+                            $respuesta = $_respuestas->response;
+                            $respuesta['result'] = array (
+                                "id" => $resp
+                            );
+                            return $respuesta;
+                        }else{
+                            return $_respuestas->error_500();
+                        }
+                        
+
+                    }
                 }
 
 
@@ -131,39 +140,49 @@ class Publicaciones extends conexion{
             $this->token = $datos['token'];
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
-                
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['id'])) {
-                    return $_respuestas->error_400();
+
+                /* COMPROBAMO SI ES ADMIN */
+                $token = $this->token;
+                $is_admin = $_helpers->isAdmin($token);
+                $admin_verify = $is_admin[0]['ROLE'];
+                var_dump($is_admin);
+
+                if($admin_verify != 'admin' || $admin_verify != 'publicador'){
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
-
-                    $usuarioToken = $_helpers->usuarioToken($this->token);
-                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
                     
-                    if ($usuarioToken != $this->usuario_id) {
-                        return $_respuestas->error_401('no tienes permisos para modificar esta publicacion');
+                    #comprobamos si todos los datos requeridos nos llegaron
+                    if (!isset($datos['id'])) {
+                        return $_respuestas->error_400();
                     }else{
-                    
-                        $conexion = $this->conexion;
-                        $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
-                        /* var_dump($conexion);die(); */
-                        #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                        if(isset($datos['categoria_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['categoria_id']); }
-                        if(isset($datos['plataforma_id'])) { $this->plataforma_id = mysqli_real_escape_string($conexion, $datos['plataforma_id']); }
-                        
-                        
-                        if(isset($datos['titulo'])) { $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']); }
-                        if(isset($datos['descripcion'])) { $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); }
-                        if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
 
+                        $usuarioToken = $_helpers->usuarioToken($this->token);
+                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
                         
+                        if ($usuarioToken != $this->usuario_id) {
+                            return $_respuestas->error_401('no tienes permisos para modificar esta publicacion');
+                        }else{
                         
-                        /* procesamiento de la imagen */
-                        if (isset($datos['image_path']) && !empty($datos['image_path'])  ) {
-                            $image_path = mysqli_real_escape_string($conexion, $datos['image_path']);
-                            $resp = $_helpers->procesarimage_path($image_path);
-                            $this->image_path = $resp;
-                        }
+                            $conexion = $this->conexion;
+                            $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
+                            /* var_dump($conexion);die(); */
+                            #estos se dejan asi ya que en el if de arriba se confirma su existencia
+                            if(isset($datos['categoria_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['categoria_id']); }
+                            if(isset($datos['plataforma_id'])) { $this->plataforma_id = mysqli_real_escape_string($conexion, $datos['plataforma_id']); }
+                            
+                            
+                            if(isset($datos['titulo'])) { $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']); }
+                            if(isset($datos['descripcion'])) { $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); }
+                            if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
+
+                            
+                            
+                            /* procesamiento de la imagen */
+                            if (isset($datos['image_path']) && !empty($datos['image_path'])  ) {
+                                $image_path = mysqli_real_escape_string($conexion, $datos['image_path']);
+                                $resp = $_helpers->procesarimage_path($image_path);
+                                $this->image_path = $resp;
+                            }
 
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                             $resp = $this->modificarPublicacion();
@@ -179,8 +198,8 @@ class Publicaciones extends conexion{
                             }
                         }
                     }
-                
-                
+                }
+                    
 
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
@@ -228,34 +247,45 @@ class Publicaciones extends conexion{
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['id'])) {
-                    return $_respuestas->error_400();
+                /* COMPROBAMO SI ES ADMIN */
+                $token = $this->token;
+                $is_admin = $_helpers->isAdmin($token);
+                $admin_verify = $is_admin[0]['ROLE'];
+                var_dump($is_admin);
+
+                if($admin_verify != 'admin' || $admin_verify != 'publicador'){
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
 
-                    $usuarioToken = $_helpers->usuarioToken($this->token);
-                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
-                    
-                    if ($usuarioToken != $this->usuario_id) {
-                        return $_respuestas->error_401('no tienes permisos para eliminar esta publicacion');
+                    #comprobamos si todos los datos requeridos nos llegaron
+                    if (!isset($datos['id'])) {
+                        return $_respuestas->error_400();
                     }else{
-                        #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
-                        $this->id = $datos['id'];
 
-
-                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->eliminarPublicacion();
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $this->id
-                            );
-                            return $respuesta;
+                        $usuarioToken = $_helpers->usuarioToken($this->token);
+                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        
+                        if ($usuarioToken != $this->usuario_id) {
+                            return $_respuestas->error_401('no tienes permisos para eliminar esta publicacion');
                         }else{
-                            return $_respuestas->error_500();
+                            #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
+                            $this->id = $datos['id'];
+
+
+                            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                            $resp = $this->eliminarPublicacion();
+                            if ($resp) {
+                                $respuesta = $_respuestas->response;
+                                $respuesta['result'] = array (
+                                    "id" => $this->id
+                                );
+                                return $respuesta;
+                            }else{
+                                return $_respuestas->error_500();
+                            }
                         }
-                    }
-                } 
+                    } 
+                }
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
             }
