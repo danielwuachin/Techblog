@@ -37,19 +37,17 @@ class Comentarios extends conexion{
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
-
-                
                 #comprobamos si todos los datos requeridos nos llegaron
                 if (!isset($datos['contenido']) || !isset($datos['publicacion_id']) 
-                || !isset($datos['usuario_id']) || !isset($datos['fecha'])) {
+                || !isset($datos['fecha'])) {
                     return $_respuestas->error_400();
                 }else{
 
                     $conexion = $this->conexion;
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
+                    $this->usuario_id = $_helpers->usuarioToken($this->token);
                     $this->publicacion_id = mysqli_real_escape_string($conexion, $datos['publicacion_id']);
-                    $this->usuario_id = mysqli_real_escape_string($conexion, $datos['usuario_id']);
                     $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
                     $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
                     
@@ -119,34 +117,37 @@ class Comentarios extends conexion{
                     return $_respuestas->error_400('no has enviado el id del comentario a modificar');
                 }else{
                     
-
-                
-                #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['contenido']) || !isset($datos['publicacion_id']) 
-                || !isset($datos['usuario_id']) || !isset($datos['fecha'])) {
-                    return $_respuestas->error_400();
-                }else{
-
-                    $conexion = $this->conexion;
-                    $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
-                    /* var_dump($conexion);die(); */
-                    #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->publicacion_id = mysqli_real_escape_string($conexion, $datos['publicacion_id']);
-                    $this->usuario_id = mysqli_real_escape_string($conexion, $datos['usuario_id']);
-                    $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
-                    $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
+                    $usuarioToken = $_helpers->usuarioToken($this->token);
+                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
                     
-                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->modificarComentario();
-                        var_dump($resp);
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $resp
-                            );
-                            return $respuesta;
+                    if ($usuarioToken != $this->usuario_id) {
+                        return $_respuestas->error_401('no tienes permisos para modificar este comentario');
+                    }else{
+                    
+                        #comprobamos si todos los datos requeridos nos llegaron
+                        if (!isset($datos['contenido']) || !isset($datos['fecha'])) {
+                            return $_respuestas->error_400();
                         }else{
-                            return $_respuestas->error_500();
+
+                            $conexion = $this->conexion;
+                            $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
+                            /* var_dump($conexion);die(); */
+                            #estos se dejan asi ya que en el if de arriba se confirma su existencia
+                            $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
+                            $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
+                            
+                                #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                                $resp = $this->modificarComentario();
+                                var_dump($resp);
+                                if ($resp) {
+                                    $respuesta = $_respuestas->response;
+                                    $respuesta['result'] = array (
+                                        "id" => $resp
+                                    );
+                                    return $respuesta;
+                                }else{
+                                    return $_respuestas->error_500();
+                                }
                         }
                     }
                 }
@@ -163,7 +164,6 @@ class Comentarios extends conexion{
     private function modificarComentario(){
         
         $query = "UPDATE " . $this->table ." SET contenido =  '" . $this->contenido . "',
-        usuario_id = '" . $this->usuario_id . "', publicacion_id = '" . $this->publicacion_id . "',
         fecha = '" . $this->fecha . "'
         WHERE id = '" . $this->id . "'";
 

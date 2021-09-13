@@ -127,7 +127,7 @@ class Categorias extends conexion{
                         $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
                         
                         if ($usuarioToken != $this->usuario_id) {
-                            return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
+                            return $_respuestas->error_401('no tienes permisos para modificar esta categoria');
                         }else{
                             
                             $this->id = $datos["id"];
@@ -209,7 +209,7 @@ class Categorias extends conexion{
                         $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
                         
                         if ($usuarioToken != $this->usuario_id) {
-                            return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
+                            return $_respuestas->error_401('no tienes permisos para eliminar esta categoria');
                         }else{
                             #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
                             $this->id = $datos['id'];

@@ -9,6 +9,7 @@ class Plataformas extends conexion{
     
     private $table = "plataformas";
     private $id = "";
+    private $usuario_id = "";
     private $plataforma = "";
     private $token = "";
 
@@ -49,7 +50,7 @@ class Plataformas extends conexion{
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
                         $this->plataforma = mysqli_real_escape_string($conexion, $datos['plataforma']);
-                        
+                        $this->usuario_id = $_helpers->usuarioToken($token);
     
                         $resp = $this->insertarPlataforma();
                         /* var_dump($resp); */
@@ -74,9 +75,9 @@ class Plataformas extends conexion{
 
 
     private function insertarPlataforma(){
-        $query = "INSERT INTO " . $this->table ." (plataforma) 
+        $query = "INSERT INTO " . $this->table ." (usuario_id, plataforma) 
         VALUES
-        ('" . $this->plataforma . "') ";
+        ('" . $this->usuario_id . "', '" . $this->plataforma . "') ";
         $resp = parent::nonQueryId($query);
         /* var_dump($query); */
         if ($resp) {
@@ -118,12 +119,19 @@ class Plataformas extends conexion{
                     if (!isset($datos['id'])) {
                         return $_respuestas->error_400();
                     }else{
+
+                        $usuarioToken = $_helpers->usuarioToken($this->token);
+                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        
+                        if ($usuarioToken != $this->usuario_id) {
+                            return $_respuestas->error_401('no tienes permisos para eliminar esta categoria');
+                        }else{
     
-                        $this->id = $datos["id"];
-                        $conexion = $this->conexion;
-    
-                        $this->plataforma = mysqli_real_escape_string($conexion, $datos['plataforma']);
-    
+                            $this->id = $datos["id"];
+                            $conexion = $this->conexion;
+        
+                            $this->plataforma = mysqli_real_escape_string($conexion, $datos['plataforma']);
+        
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                             $resp = $this->modificarPlataforma();
                             var_dump($resp);
@@ -136,6 +144,7 @@ class Plataformas extends conexion{
                             }else{
                                 return $_respuestas->error_500();
                             }
+                        }
                     }
                 }
             }else{
@@ -191,20 +200,28 @@ class Plataformas extends conexion{
                     if (!isset($datos['id'])) {
                         return $_respuestas->error_400();
                     }else{
-                        #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
-                        $this->id = $datos['id'];
-    
-    
-                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->eliminarPlataforma();
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $this->id
-                            );
-                            return $respuesta;
+
+                        $usuarioToken = $_helpers->usuarioToken($this->token);
+                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        
+                        if ($usuarioToken != $this->usuario_id) {
+                            return $_respuestas->error_401('no tienes permisos para eliminar esta categoria');
                         }else{
-                            return $_respuestas->error_500();
+                            #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
+                            $this->id = $datos['id'];
+        
+        
+                            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                            $resp = $this->eliminarPlataforma();
+                            if ($resp) {
+                                $respuesta = $_respuestas->response;
+                                $respuesta['result'] = array (
+                                    "id" => $this->id
+                                );
+                                return $respuesta;
+                            }else{
+                                return $_respuestas->error_500();
+                            }
                         }
                     } 
 
