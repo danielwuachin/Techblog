@@ -21,25 +21,6 @@ class usuarios extends conexion{
     private $role = "user";
 
 
-    public function obtenerEmail(){
-        $query = "SELECT email FROM ". $this->table;
-        return parent::obtenerDatos($query);
-    }
-
-    public function validarEmail($incomingEmail){
-        $emails = $this->obtenerEmail();
-
-        $var = 0;
-        foreach($emails as $email){
-            
-            if($incomingEmail == $email['email']){
-                $var = 1;
-                return $var;
-            }
-        }
-    }
-
-
 
     #PARA EL POST-----------  HACER CREATE
     public function post($json){
@@ -70,7 +51,7 @@ class usuarios extends conexion{
             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
             $email = mysqli_real_escape_string($conexion, $datos['email']);
             
-            $comprobarEmail = $this->validarEmail($email);
+            $comprobarEmail = $_helpers->validarEmail($email);
             if ($comprobarEmail == 1) {
                 return $_respuestas->error_500("Este email ya existe, por favor cambielo");
             }else{
@@ -142,49 +123,57 @@ class usuarios extends conexion{
                     return $_respuestas->error_400();
                 }else{
 
-                    $this->id = $datos["id"];
-                    $conexion = $this->conexion;
-                    /* var_dump($conexion);die(); */
-                    #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
-
-                    /* encriptado de la contraseña */
-                    $password = mysqli_real_escape_string($conexion, $datos['password']);
-                    $password_segura = password_hash($password, PASSWORD_BCRYPT, ['cost' =>4]);
-                    $this->password = $password_segura;
-
+                    $usuarioToken = $_helpers->usuarioToken($this->token);
+                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
                     
-
-                    if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
-                    if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
-
-                    $email = mysqli_real_escape_string($conexion, $datos['email']);
-                    
-                    $comprobarEmail = $this->validarEmail($email);
-                    if ($comprobarEmail == 1) {
-                        return $_respuestas->error_500("Este email ya existe, por favor cambielo");
+                    if ($usuarioToken != $this->usuario_id) {
+                        return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
                     }else{
-                        
-                        $this->email = $email;
-                        /* procesamiento de la imagen */
-                        if (isset($datos['icon_path'])) {
-                            
-                            $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
-                            $resp = $_helpers->procesarimage_path($icon_path);
-                            $this->icon_path = $resp;
-                        }
 
-                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->modificarUsuario();
-                        var_dump($resp);
-                        if ($resp) {
-                            $respuesta = $_respuestas->response;
-                            $respuesta['result'] = array (
-                                "id" => $resp
-                            );
-                            return $respuesta;
+                        $this->id = $datos["id"];
+                        $conexion = $this->conexion;
+                        /* var_dump($conexion);die(); */
+                        #estos se dejan asi ya que en el if de arriba se confirma su existencia
+                        $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
+
+                        /* encriptado de la contraseña */
+                        $password = mysqli_real_escape_string($conexion, $datos['password']);
+                        $password_segura = password_hash($password, PASSWORD_BCRYPT, ['cost' =>4]);
+                        $this->password = $password_segura;
+
+                        
+
+                        if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
+                        if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
+
+                        $email = mysqli_real_escape_string($conexion, $datos['email']);
+                        
+                        $comprobarEmail = $_helpers->validarEmail($email);
+                        if ($comprobarEmail == 1) {
+                            return $_respuestas->error_500("Este email ya existe, por favor cambielo");
                         }else{
-                            return $_respuestas->error_500();
+                            
+                            $this->email = $email;
+                            /* procesamiento de la imagen */
+                            if (isset($datos['icon_path'])) {
+                                
+                                $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
+                                $resp = $_helpers->procesarimage_path($icon_path);
+                                $this->icon_path = $resp;
+                            }
+
+                            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                            $resp = $this->modificarUsuario();
+                            var_dump($resp);
+                            if ($resp) {
+                                $respuesta = $_respuestas->response;
+                                $respuesta['result'] = array (
+                                    "id" => $resp
+                                );
+                                return $respuesta;
+                            }else{
+                                return $_respuestas->error_500();
+                            }
                         }
                     }
                 }
@@ -238,20 +227,26 @@ class usuarios extends conexion{
                 if (!isset($datos['id'])) {
                     return $_respuestas->error_400();
                 }else{
-                    #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
-                    $this->id = $datos['id'];
-
-
-                    #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->eliminarUsuario();
-                    if ($resp) {
-                        $respuesta = $_respuestas->response;
-                        $respuesta['result'] = array (
-                            "id" => $this->id
-                        );
-                        return $respuesta;
+                    $usuarioToken = $_helpers->usuarioToken($this->token);
+                    
+                    if ($usuarioToken != $datos['id']) {
+                        return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
                     }else{
-                        return $_respuestas->error_500();
+                        #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
+                        $this->id = $datos['id'];
+
+
+                        #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                        $resp = $this->eliminarUsuario();
+                        if ($resp) {
+                            $respuesta = $_respuestas->response;
+                            $respuesta['result'] = array (
+                                "id" => $this->id
+                            );
+                            return $respuesta;
+                        }else{
+                            return $_respuestas->error_500();
+                        }
                     }
                 } 
             }else{
