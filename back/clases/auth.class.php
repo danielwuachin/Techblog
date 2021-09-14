@@ -10,6 +10,7 @@ class auth extends conexion{
     public function login($json){
         $_respuestas = new respuestas;
         #convertirn  json a un array
+        $conexion = $this->conexion;
 
         $datos = json_decode($json, true);
 
@@ -20,47 +21,51 @@ class auth extends conexion{
 
         }else{
             // todo bien todo correcto
-            $usuario = $datos['usuario'];
-            $password = $datos['password'];
+            $usuario =  mysqli_real_escape_string($conexion, $datos['usuario']);
+            $password =  mysqli_real_escape_string($conexion, $datos['password']);
             
             /* se sacan los datos del usuario recibido con el de la BD y se comprueba la password */
             $datos = $this->obtenerDatosUsuario($usuario);
             var_dump($datos); 
 
-            /* se envia la pass recibida mas la extraida de la DB */
-            $password = parent::encriptar($password, $datos[0]['password']);
-            var_dump($password);
-            #ver si hay datos
-            if ($datos) {
-                # verificar si la contraseña ingresada es igual a la de la DDBB
-                if ($password == $datos[0]['password']) {
-                    
-                    if ($datos[0]['Estado'] == 'Activo') {
-                        #crear el token para el id del usuario que intenta loguearse
-                        $verificar = $this->insertarToken($datos[0]['id']);
-                        if ($verificar) {
-                            #si se pudo guardar
-                            $result = $_respuestas->response;
-                            $result["result"] = array(
-                                "token" => $verificar
-                            );
-                            return $result;
+            if ($datos[0]['Estado'] != 'Activo'){
+                return $_respuestas->error_401('por motivos internos, usted esta baneado de esta pagina web');
+            }
+
+                /* se envia la pass recibida mas la extraida de la DB */
+                $password = parent::encriptar($password, $datos[0]['password']);
+                var_dump($password);
+                #ver si hay datos
+                if ($datos) {
+                    # verificar si la contraseña ingresada es igual a la de la DDBB
+                    if ($password == $datos[0]['password']) {
+                        
+                        if ($datos[0]['Estado'] == 'Activo') {
+                            #crear el token para el id del usuario que intenta loguearse
+                            $verificar = $this->insertarToken($datos[0]['id']);
+                            if ($verificar) {
+                                #si se pudo guardar
+                                $result = $_respuestas->response;
+                                $result["result"] = array(
+                                    "token" => $verificar
+                                );
+                                return $result;
+                            }else{
+                                #error al guardar
+                                return $_respuestas->error_500("error interno, no hemos podido guardar"); 
+                            }
                         }else{
-                            #error al guardar
-                            return $_respuestas->error_500("error interno, no hemos podido guardar"); 
+                            #error, usuario no esta activo
+                            return $_respuestas->error_200("el usuario no esta activo mi pana");
                         }
                     }else{
-                        #error, usuario no esta activo
-                        return $_respuestas->error_200("el usuario no esta activo mi pana");
+                        return $_respuestas->error_200("el password es invalido");
                     }
+                    
                 }else{
-                    return $_respuestas->error_200("el password es invalido");
+                    #no eciste el usuario, se usa error 200 ya que si funciono todo pero no existe user
+                    return $_respuestas->error_200("el usuario $usuario no existe");
                 }
-                
-            }else{
-                #no eciste el usuario, se usa error 200 ya que si funciono todo pero no existe user
-                return $_respuestas->error_200("el usuario $usuario no existe");
-            }
         }
     }
 
