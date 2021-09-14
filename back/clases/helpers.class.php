@@ -65,6 +65,18 @@ class Helpers extends conexion{
     }
 
 
+    /* eliminar token */
+    public function eliminarToken($tokenid){
+        $query = "DELETE FROM usuarios_token WHERE Token = '".$tokenid."' ";
+        $resp = parent::nonQuery($query);
+        if ($resp >= 1) {
+            return $resp;
+        }else{
+            return 0;
+        } 
+    }
+
+
 
     public function obtenerEmail(){
         $query = "SELECT email FROM ". $this->table;
