@@ -19,6 +19,7 @@ class Categorias extends conexion{
     public function post($json){
         $_helpers = new Helpers;
         $_respuestas = new respuestas;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
 
@@ -26,7 +27,7 @@ class Categorias extends conexion{
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
 
@@ -46,7 +47,6 @@ class Categorias extends conexion{
                         return $_respuestas->error_400();
                     }else{
     
-                        $conexion = $this->conexion;
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
                         $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
@@ -95,6 +95,7 @@ class Categorias extends conexion{
     public function put($json){
         $_helpers = new Helpers;
         $_respuestas = new respuestas;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
 
@@ -103,7 +104,7 @@ class Categorias extends conexion{
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
 
@@ -131,7 +132,6 @@ class Categorias extends conexion{
                         }else{
                             
                             $this->id = $datos["id"];
-                            $conexion = $this->conexion;
         
                             $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
         
@@ -180,13 +180,14 @@ class Categorias extends conexion{
     public function delete($json){
         $_helpers = new Helpers;
         $_respuestas = new respuestas;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 

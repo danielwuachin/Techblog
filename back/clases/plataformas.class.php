@@ -19,6 +19,7 @@ class Plataformas extends conexion{
     public function post($json){
         $_helpers = new Helpers;
         $_respuestas = new respuestas;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
 
@@ -26,7 +27,7 @@ class Plataformas extends conexion{
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
 
@@ -46,7 +47,6 @@ class Plataformas extends conexion{
                         return $_respuestas->error_400();
                     }else{
     
-                        $conexion = $this->conexion;
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
                         $this->plataforma = mysqli_real_escape_string($conexion, $datos['plataforma']);
@@ -93,25 +93,26 @@ class Plataformas extends conexion{
     public function put($json){
         $_helpers = new Helpers;
         $_respuestas = new respuestas;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
-
-
-
+        
+        
+        
         #para comprobar si enviaron el token!!!!
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
-
-
+                
+                
                 /* COMPROBAMO SI ES ADMIN */
                 $token = $this->token;
                 $is_admin = $_helpers->isAdmin($token);
                 $admin_verify = $is_admin[0]['ROLE'];
                 var_dump($is_admin);
-
+                
                 if($admin_verify != 'admin'){
                     return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
@@ -119,19 +120,18 @@ class Plataformas extends conexion{
                     if (!isset($datos['id'])) {
                         return $_respuestas->error_400();
                     }else{
-
+                        
                         $usuarioToken = $_helpers->usuarioToken($this->token);
                         $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
                         
                         if ($usuarioToken != $this->usuario_id) {
                             return $_respuestas->error_401('no tienes permisos para modificar esta categoria');
                         }else{
-    
+                            
                             $this->id = $datos["id"];
-                            $conexion = $this->conexion;
-        
+                            
                             $this->plataforma = mysqli_real_escape_string($conexion, $datos['plataforma']);
-        
+                            
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                             $resp = $this->modificarPlataforma();
                             var_dump($resp);
@@ -153,7 +153,7 @@ class Plataformas extends conexion{
         }
     }
 
-
+    
     
     private function modificarPlataforma(){
         
@@ -169,20 +169,21 @@ class Plataformas extends conexion{
             return 0;
         }
     }
-
-
-
+    
+    
+    
     #PARA BORRARR    --------------------------------------------------------------
     public function delete($json){
         $_helpers = new Helpers;
         $_respuestas = new respuestas;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 

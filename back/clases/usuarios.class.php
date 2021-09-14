@@ -108,13 +108,14 @@ class usuarios extends conexion{
     public function put($json){
         $_respuestas = new respuestas;
         $_helpers = new Helpers;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
@@ -131,7 +132,6 @@ class usuarios extends conexion{
                     }else{
 
                         $this->id = $datos["id"];
-                        $conexion = $this->conexion;
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
                         $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
@@ -213,13 +213,14 @@ class usuarios extends conexion{
     public function delete($json){
         $_respuestas = new respuestas;
         $_helpers = new Helpers;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 

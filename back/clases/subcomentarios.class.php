@@ -27,13 +27,14 @@ class Subcomentarios extends conexion{
     public function post($json){
         $_respuestas = new respuestas;
         $_helpers= new Helpers;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
@@ -45,7 +46,6 @@ class Subcomentarios extends conexion{
                     return $_respuestas->error_400();
                 }else{
 
-                    $conexion = $this->conexion;
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
                     $this->usuario_id = $_helpers->usuarioToken($this->token);
@@ -102,15 +102,16 @@ class Subcomentarios extends conexion{
     #PARA HACER UPDATE-------- ----------------------------METODO PUT
     public function put($json){
         $_respuestas = new respuestas;
-        $datos = json_decode($json, true);
         $_helpers= new Helpers;
+        $conexion = $this->conexion;
+        $datos = json_decode($json, true);
 
 
         #para comprobar si enviaron el token!!!!
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
@@ -133,7 +134,6 @@ class Subcomentarios extends conexion{
                             return $_respuestas->error_401('no tienes permisos para modificar este comentario');
                         }else{
                         
-                            $conexion = $this->conexion;
                             $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
                             /* var_dump($conexion);die(); */
                             #estos se dejan asi ya que en el if de arriba se confirma su existencia
@@ -189,8 +189,9 @@ class Subcomentarios extends conexion{
     #PARA BORRARR    --------------------------------------------------------------
     public function delete($json){
         $_respuestas = new respuestas;
-        $datos = json_decode($json, true);
         $_helpers= new Helpers;
+        $conexion = $this->conexion;
+        $datos = json_decode($json, true);
 
 
 
@@ -198,7 +199,7 @@ class Subcomentarios extends conexion{
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 

@@ -27,13 +27,14 @@ class Comentarios extends conexion{
     public function post($json){
         $_respuestas = new respuestas;
         $_helpers= new Helpers;
+        $conexion = $this->conexion;
         $datos = json_decode($json, true);
 
         #para comprobar si enviaron el token
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
@@ -43,7 +44,6 @@ class Comentarios extends conexion{
                     return $_respuestas->error_400();
                 }else{
 
-                    $conexion = $this->conexion;
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
                     $this->usuario_id = $_helpers->usuarioToken($this->token);
@@ -100,15 +100,16 @@ class Comentarios extends conexion{
     #PARA HACER UPDATE-------- ----------------------------METODO PUT
     public function put($json){
         $_respuestas = new respuestas;
-        $datos = json_decode($json, true);
         $_helpers= new Helpers;
-
+        $conexion = $this->conexion;
+        $datos = json_decode($json, true);
+        
 
         #para comprobar si enviaron el token!!!!
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
@@ -123,50 +124,49 @@ class Comentarios extends conexion{
                     if ($usuarioToken != $this->usuario_id) {
                         return $_respuestas->error_401('no tienes permisos para modificar este comentario');
                     }else{
-                    
+                        
                         #comprobamos si todos los datos requeridos nos llegaron
                         if (!isset($datos['contenido']) || !isset($datos['fecha'])) {
                             return $_respuestas->error_400();
                         }else{
-
-                            $conexion = $this->conexion;
+                            
                             $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
                             /* var_dump($conexion);die(); */
                             #estos se dejan asi ya que en el if de arriba se confirma su existencia
                             $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
                             $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
                             
-                                #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                                $resp = $this->modificarComentario();
-                                var_dump($resp);
-                                if ($resp) {
-                                    $respuesta = $_respuestas->response;
-                                    $respuesta['result'] = array (
-                                        "id" => $resp
-                                    );
-                                    return $respuesta;
-                                }else{
-                                    return $_respuestas->error_500();
-                                }
+                            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                            $resp = $this->modificarComentario();
+                            var_dump($resp);
+                            if ($resp) {
+                                $respuesta = $_respuestas->response;
+                                $respuesta['result'] = array (
+                                    "id" => $resp
+                                );
+                                return $respuesta;
+                            }else{
+                                return $_respuestas->error_500();
+                            }
                         }
                     }
                 }
                 
-
+                
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
             }
         }
     }
-
-
+    
+    
     
     private function modificarComentario(){
         
         $query = "UPDATE " . $this->table ." SET contenido =  '" . $this->contenido . "',
         fecha = '" . $this->fecha . "'
         WHERE id = '" . $this->id . "'";
-
+        
         
         $resp = parent::nonQuery($query);
         var_dump($query);
@@ -177,16 +177,17 @@ class Comentarios extends conexion{
             return 0;
         }
     }
-
-
-
-
-
+    
+    
+    
+    
+    
     #PARA BORRARR    --------------------------------------------------------------
     public function delete($json){
         $_respuestas = new respuestas;
-        $datos = json_decode($json, true);
         $_helpers= new Helpers;
+        $conexion = $this->conexion;
+        $datos = json_decode($json, true);
 
 
 
@@ -194,7 +195,7 @@ class Comentarios extends conexion{
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
         }else{
-            $this->token = $datos['token'];
+            $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
                 
