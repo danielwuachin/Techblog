@@ -286,7 +286,7 @@ class pacientes extends conexion{
 
 
     private function buscarToken(){
-        $query = "SELECT  tokenId, UsuarioId, Estado FROM usuarios_token WHERE Token = '" . $this->token . "' AND Estado = 'Activo'";
+        $query = "SELECT  tokenId, user_id, Estado FROM usuarios_token WHERE Token = '" . $this->token . "' AND Estado = 'Activo'";
         $resp = parent::obtenerDatos($query);
 
         if ($resp) {

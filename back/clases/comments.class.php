@@ -4,18 +4,18 @@ require_once "helpers.class.php";
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
-class Comentarios extends conexion{
+class Comments extends conexion{
 
     
-    private $table = "comentarios";
+    private $table = "comments";
     private $id = "";
 
-    private $usuario_id = "";
-    private $publicacion_id = "";
+    private $user_id = "";
+    private $publication_id = "";
 
-    private $contenido = "";
+    private $content = "";
 
-    private $fecha = "";
+    private $date = "";
     
     private $token = "";
 
@@ -39,21 +39,21 @@ class Comentarios extends conexion{
             if ($arrayToken) {
                 
                 #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['contenido']) || !isset($datos['publicacion_id']) 
-                || !isset($datos['fecha'])) {
+                if (!isset($datos['content']) || !isset($datos['publication_id']) 
+                || !isset($datos['date'])) {
                     return $_respuestas->error_400();
                 }else{
 
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->usuario_id = $_helpers->usuarioToken($this->token);
-                    $this->publicacion_id = mysqli_real_escape_string($conexion, $datos['publicacion_id']);
-                    $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
-                    $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
+                    $this->user_id = $_helpers->userToken($this->token);
+                    $this->publication_id = mysqli_real_escape_string($conexion, $datos['publication_id']);
+                    $this->content = mysqli_real_escape_string($conexion, $datos['content']); 
+                    $this->date = mysqli_real_escape_string($conexion, $datos['date']); 
                     
 
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->insertarComentario();
+                    $resp = $this->isnertComment();
                     var_dump($resp);
                     if ($resp) {
                         $respuesta = $_respuestas->response;
@@ -77,11 +77,11 @@ class Comentarios extends conexion{
 
 
 
-    private function insertarComentario(){
-        $query = "INSERT INTO " . $this->table ." (usuario_id, publicacion_id, contenido,  fecha) 
+    private function isnertComment(){
+        $query = "INSERT INTO " . $this->table ." (user_id, publication_id, content,  date) 
         VALUES
-        ( '" . $this->usuario_id . "', '" . $this->publicacion_id . "',
-        '" . $this->contenido . "', '" . $this->fecha . "') ";
+        ( '" . $this->user_id . "', '" . $this->publication_id . "',
+        '" . $this->content . "', '" . $this->date . "') ";
         $resp = parent::nonQueryId($query);
         var_dump($query);
         var_dump($resp);
@@ -115,29 +115,29 @@ class Comentarios extends conexion{
                 
                 #comprobamos si todos los datos requeridos nos llegaron
                 if (!isset($datos['id'])) {
-                    return $_respuestas->error_400('no has enviado el id del comentario a modificar');
+                    return $_respuestas->error_400('no has enviado el id del comment a modify');
                 }else{
                     
-                    $usuarioToken = $_helpers->usuarioToken($this->token);
-                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                    $userToken = $_helpers->userToken($this->token);
+                    $this->user_id = $_helpers->user_id($datos['id'], $this->table);
                     
-                    if ($usuarioToken != $this->usuario_id) {
-                        return $_respuestas->error_401('no tienes permisos para modificar este comentario');
+                    if ($userToken != $this->user_id) {
+                        return $_respuestas->error_401('no tienes permisos para modify este comment');
                     }else{
                         
                         #comprobamos si todos los datos requeridos nos llegaron
-                        if (!isset($datos['contenido']) || !isset($datos['fecha'])) {
+                        if (!isset($datos['content']) || !isset($datos['date'])) {
                             return $_respuestas->error_400();
                         }else{
                             
                             $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
                             /* var_dump($conexion);die(); */
                             #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                            $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
-                            $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
+                            $this->content = mysqli_real_escape_string($conexion, $datos['content']); 
+                            $this->date = mysqli_real_escape_string($conexion, $datos['date']); 
                             
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                            $resp = $this->modificarComentario();
+                            $resp = $this->modifyComment();
                             var_dump($resp);
                             if ($resp) {
                                 $respuesta = $_respuestas->response;
@@ -161,10 +161,10 @@ class Comentarios extends conexion{
     
     
     
-    private function modificarComentario(){
+    private function modifyComment(){
         
-        $query = "UPDATE " . $this->table ." SET contenido =  '" . $this->contenido . "',
-        fecha = '" . $this->fecha . "'
+        $query = "UPDATE " . $this->table ." SET content =  '" . $this->content . "',
+        date = '" . $this->date . "'
         WHERE id = '" . $this->id . "'";
         
         
@@ -203,18 +203,18 @@ class Comentarios extends conexion{
                 if (!isset($datos['id'])) {
                     return $_respuestas->error_400();
                 }else{
-                    $usuarioToken = $_helpers->usuarioToken($this->token);
-                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                    $userToken = $_helpers->userToken($this->token);
+                    $this->user_id = $_helpers->user_id($datos['id'], $this->table);
                     
-                    if ($usuarioToken != $this->usuario_id) {
-                        return $_respuestas->error_401('no tienes permisos para eliminar este comentario');
+                    if ($userToken != $this->user_id) {
+                        return $_respuestas->error_401('no tienes permisos para delete este comment');
                     }else{
                         #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
                         $this->id = $datos['id'];
 
 
                         #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->eliminarComentario();
+                        $resp = $this->deleteComment();
                         if ($resp) {
                             $respuesta = $_respuestas->response;
                             $respuesta['result'] = array (
@@ -233,7 +233,7 @@ class Comentarios extends conexion{
     }
 
 
-    private function eliminarComentario(){
+    private function deleteComment(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 

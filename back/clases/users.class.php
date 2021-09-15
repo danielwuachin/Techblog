@@ -4,20 +4,20 @@ require_once "helpers.class.php";
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
-class usuarios extends conexion{
+class Users extends conexion{
 
     
-    private $table = "usuarios";
+    private $table = "users";
     private $id = "";
 
-    private $nombre = "";
-    private $apellidos = "";
+    private $name = "";
+    private $lastname = "";
     private $password = "";
-    private $fecha = "";
+    private $date = "";
     private $email = "";
     private $token = "";
     private $icon_path= "";
-    private $estado = "Activo";
+    private $status = "Active";
     private $role = "user";
 
 
@@ -29,14 +29,14 @@ class usuarios extends conexion{
         $datos = json_decode($json, true);
                 
         #comprobamos si todos los datos requeridos nos llegaron
-        if (!isset($datos['nombre']) || !isset($datos['password']) || !isset($datos['email'])) {
+        if (!isset($datos['name']) || !isset($datos['password']) || !isset($datos['email'])) {
             return $_respuestas->error_400();
         }else{
 
             $conexion = $this->conexion;
             /* var_dump($conexion);die(); */
             #estos se dejan asi ya que en el if de arriba se confirma su existencia
-            $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
+            $this->name = mysqli_real_escape_string($conexion, $datos['name']);
 
             /* encriptado de la contraseña */
             $password = mysqli_real_escape_string($conexion, $datos['password']);
@@ -44,8 +44,8 @@ class usuarios extends conexion{
             $this->password = $password_segura;
 
             
-            if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
-            if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
+            if(isset($datos['lastname'])) { $this->lastname = mysqli_real_escape_string($conexion, $datos['lastname']); }
+            if(isset($datos['date'])) { $this->date = mysqli_real_escape_string($conexion, $datos['date']); }
             
 
             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
@@ -65,7 +65,7 @@ class usuarios extends conexion{
                     $this->icon_path = $resp;
                 }
 
-                $resp = $this->insertarUsuario();
+                $resp = $this->insertUser();
                 /* var_dump($resp); */
                 if ($resp) {
                     $respuesta = $_respuestas->response;
@@ -85,11 +85,11 @@ class usuarios extends conexion{
 
 
 
-    private function insertarUsuario(){
-        $query = "INSERT INTO " . $this->table ." (nombre, apellidos, email, password, icon_path, fecha, Estado, ROLE) 
+    private function insertUser(){
+        $query = "INSERT INTO " . $this->table ." (name, lastname, email, password, icon_path, date, status, ROLE) 
         VALUES
-        ('" . $this->nombre . "', '" . $this->apellidos . "', '" . $this->email . "', 
-        '" . $this->password . "', '" . $this->icon_path . "' , '" . $this->fecha . "', '" . $this->estado . "', '" . $this->role . "') ";
+        ('" . $this->name . "', '" . $this->lastname . "', '" . $this->email . "', 
+        '" . $this->password . "', '" . $this->icon_path . "' , '" . $this->date . "', '" . $this->status . "', '" . $this->role . "') ";
         $resp = parent::nonQueryId($query);
         /* var_dump($query); */
         if ($resp) {
@@ -124,17 +124,16 @@ class usuarios extends conexion{
                     return $_respuestas->error_400();
                 }else{
 
-                    $usuarioToken = $_helpers->usuarioToken($this->token);
-                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
-                    
-                    if ($usuarioToken != $this->usuario_id) {
-                        return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
-                    }else{
+                    $userToken = $_helpers->userToken($this->token);
+                    $this->id = $datos["id"];
 
-                        $this->id = $datos["id"];
-                        /* var_dump($conexion);die(); */
+                    $token = $this->token;
+                    $is_admin = $_helpers->isAdmin($token);
+                    $admin_verify = $is_admin[0]['ROLE'];
+                    
+                    if ($userToken == $this->id || $admin_verify == 'admin') {
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                        $this->nombre = mysqli_real_escape_string($conexion, $datos['nombre']);
+                        $this->name = mysqli_real_escape_string($conexion, $datos['name']);
 
                         /* encriptado de la contraseña */
                         $password = mysqli_real_escape_string($conexion, $datos['password']);
@@ -143,8 +142,8 @@ class usuarios extends conexion{
 
                         
 
-                        if(isset($datos['apellidos'])) { $this->apellidos = mysqli_real_escape_string($conexion, $datos['apellidos']); }
-                        if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
+                        if(isset($datos['lastname'])) { $this->lastname = mysqli_real_escape_string($conexion, $datos['lastname']); }
+                        if(isset($datos['date'])) { $this->date = mysqli_real_escape_string($conexion, $datos['date']); }
 
                         $email = mysqli_real_escape_string($conexion, $datos['email']);
                         
@@ -155,7 +154,7 @@ class usuarios extends conexion{
                             
                             $this->email = $email;
                             /* procesamiento de la imagen */
-                            if (isset($datos['icon_path'])) {
+                            if (isset($datos['icon_path'])  && !empty($datos['icon_path'])) {
                                 
                                 $icon_path = mysqli_real_escape_string($conexion, $datos['icon_path']);
                                 $resp = $_helpers->procesarimage_path($icon_path);
@@ -163,7 +162,7 @@ class usuarios extends conexion{
                             }
 
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                            $resp = $this->modificarUsuario();
+                            $resp = $this->modifyUser();
                             var_dump($resp);
                             if ($resp) {
                                 $respuesta = $_respuestas->response;
@@ -175,6 +174,10 @@ class usuarios extends conexion{
                                 return $_respuestas->error_500();
                             }
                         }
+                    }else{
+                        
+                        return $_respuestas->error_401('no tienes permisos para eliminar este user');
+                        
                     }
                 }
 
@@ -187,11 +190,11 @@ class usuarios extends conexion{
 
 
     
-    private function modificarUsuario(){
+    private function modifyUser(){
         
-        $query = "UPDATE " . $this->table ." SET nombre = '" . $this->nombre . "', apellidos =  '" . $this->apellidos . "',
+        $query = "UPDATE " . $this->table ." SET name = '" . $this->name . "', lastname =  '" . $this->lastname . "',
         email = '" . $this->email . "', password = '" . $this->password . "', icon_path = '" . $this->icon_path . "', 
-        fecha = '" . $this->fecha . "', Estado = '" . $this->estado . "', ROLE = '" . $this->role . "'  
+        date = '" . $this->date . "', status = '" . $this->status . "', ROLE = '" . $this->role . "'  
         WHERE id = '" . $this->id . "'";
 
         
@@ -228,17 +231,19 @@ class usuarios extends conexion{
                 if (!isset($datos['id'])) {
                     return $_respuestas->error_400();
                 }else{
-                    $usuarioToken = $_helpers->usuarioToken($this->token);
+                    $userToken = $_helpers->userToken($this->token);
+
+                    $token = $this->token;
+                    $is_admin = $_helpers->isAdmin($token);
+                    $admin_verify = $is_admin[0]['ROLE'];
                     
-                    if ($usuarioToken != $datos['id']) {
-                        return $_respuestas->error_401('no tienes permisos para eliminar este usuario');
-                    }else{
+                    if ($userToken == $this->id || $admin_verify == 'admin') {
                         #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
                         $this->id = $datos['id'];
 
 
                         #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->eliminarUsuario();
+                        $resp = $this->deleteUser();
                         if ($resp) {
                             $respuesta = $_respuestas->response;
                             $respuesta['result'] = array (
@@ -248,6 +253,8 @@ class usuarios extends conexion{
                         }else{
                             return $_respuestas->error_500();
                         }
+                    }else{
+                        return $_respuestas->error_401('no tienes permisos para eliminar este user');
                     }
                 } 
             }else{
@@ -257,7 +264,7 @@ class usuarios extends conexion{
     }
 
 
-    private function eliminarUsuario(){
+    private function deleteUser(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 

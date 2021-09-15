@@ -4,14 +4,14 @@ require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 require_once "helpers.class.php";
 
-class Categorias extends conexion{
+class Platforms extends conexion{
 
     
-    private $table = "categorias";
+    private $table = "platforms";
     private $id = "";
-    private $genero = "";
+    private $user_id = "";
+    private $platform = "";
     private $token = "";
-    private $usuario_id = "";
 
 
 
@@ -36,25 +36,23 @@ class Categorias extends conexion{
                 $token = $this->token;
                 $is_admin = $_helpers->isAdmin($token);
                 $admin_verify = $is_admin[0]['ROLE'];
-                var_dump($is_admin);
+                
 
                 if($admin_verify != 'admin'){
                     return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
 
                     #comprobamos si todos los datos requeridos nos llegaron
-                    if (!isset($datos['genero'])) {
+                    if (!isset($datos['platform'])) {
                         return $_respuestas->error_400();
                     }else{
     
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                        $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
-                        $this->usuario_id = $_helpers->usuarioToken($token);
-
-                        var_dump($this->usuario_id);
-
-                        $resp = $this->insertarCategoria();
+                        $this->platform = mysqli_real_escape_string($conexion, $datos['platform']);
+                        $this->user_id = $_helpers->userToken($token);
+    
+                        $resp = $this->insertPlatform();
                         /* var_dump($resp); */
                         if ($resp) {
                             $respuesta = $_respuestas->response;
@@ -76,12 +74,12 @@ class Categorias extends conexion{
 
 
 
-    private function insertarCategoria(){
-        $query = "INSERT INTO " . $this->table ." (usuario_id, genero) 
+    private function insertPlatform(){
+        $query = "INSERT INTO " . $this->table ." (user_id, platform) 
         VALUES
-        ( '" .$this->usuario_id ."', '" . $this->genero . "' ) ";
+        ('" . $this->user_id . "', '" . $this->platform . "') ";
         $resp = parent::nonQueryId($query);
-        var_dump($query);
+        /* var_dump($query); */
         if ($resp) {
             return $resp;
         }else{
@@ -97,9 +95,9 @@ class Categorias extends conexion{
         $_respuestas = new respuestas;
         $conexion = $this->conexion;
         $datos = json_decode($json, true);
-
-
-
+        
+        
+        
         #para comprobar si enviaron el token!!!!
         if (!isset($datos['token'])) {
             return $_respuestas->error_401(); 
@@ -107,14 +105,14 @@ class Categorias extends conexion{
             $this->token = mysqli_real_escape_string($conexion, $datos['token']);
             $arrayToken = $_helpers->buscarToken($this->token);
             if ($arrayToken) {
-
-
+                
+                
                 /* COMPROBAMO SI ES ADMIN */
                 $token = $this->token;
                 $is_admin = $_helpers->isAdmin($token);
                 $admin_verify = $is_admin[0]['ROLE'];
+                var_dump($is_admin);
                 
-
                 if($admin_verify != 'admin'){
                     return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }else{
@@ -123,20 +121,19 @@ class Categorias extends conexion{
                         return $_respuestas->error_400();
                     }else{
                         
-
-                        $usuarioToken = $_helpers->usuarioToken($token);
-                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        $userToken = $_helpers->userToken($this->token);
+                        $this->user_id = $_helpers->user_id($datos['id'], $this->table);
                         
-                        if ($usuarioToken != $this->usuario_id) {
+                        if ($userToken != $this->user_id) {
                             return $_respuestas->error_401('no tienes permisos para modificar esta categoria');
                         }else{
                             
                             $this->id = $datos["id"];
-        
-                            $this->genero = mysqli_real_escape_string($conexion, $datos['genero']);
-        
+                            
+                            $this->platform = mysqli_real_escape_string($conexion, $datos['platform']);
+                            
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                            $resp = $this->modificarCategoria();
+                            $resp = $this->modifyPlatform();
                             var_dump($resp);
                             if ($resp) {
                                 $respuesta = $_respuestas->response;
@@ -148,7 +145,6 @@ class Categorias extends conexion{
                                 return $_respuestas->error_500();
                             }
                         }
-
                     }
                 }
             }else{
@@ -157,11 +153,11 @@ class Categorias extends conexion{
         }
     }
 
-
     
-    private function modificarCategoria(){
+    
+    private function modifyPlatform(){
         
-        $query = "UPDATE " . $this->table ." SET genero = '" . $this->genero . "'
+        $query = "UPDATE " . $this->table ." SET platform = '" . $this->platform . "'
         WHERE id = '" . $this->id . "'";
         
         $resp = parent::nonQuery($query);
@@ -173,9 +169,9 @@ class Categorias extends conexion{
             return 0;
         }
     }
-
-
-
+    
+    
+    
     #PARA BORRARR    --------------------------------------------------------------
     public function delete($json){
         $_helpers = new Helpers;
@@ -206,20 +202,18 @@ class Categorias extends conexion{
                         return $_respuestas->error_400();
                     }else{
 
-                        $usuarioToken = $_helpers->usuarioToken($token);
-                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        $userToken = $_helpers->userToken($this->token);
+                        $this->user_id = $_helpers->user_id($datos['id'], $this->table);
                         
-                        if ($usuarioToken != $this->usuario_id) {
-                            return $_respuestas->error_401('no tienes permisos para eliminar esta categoria');
+                        if ($userToken != $this->user_id) {
+                            return $_respuestas->error_401('no tienes permisos para delete esta platform');
                         }else{
                             #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
                             $this->id = $datos['id'];
         
-                            /* $usuario = $_helpers->comprobarUsuario($this->table, $token);
-                            $usuarioComprobado = $usuario[0]['id'];
-                            var_dump($usuario);die(); */
+        
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                            $resp = $this->eliminarCategoria();
+                            $resp = $this->deletePlatform();
                             if ($resp) {
                                 $respuesta = $_respuestas->response;
                                 $respuesta['result'] = array (
@@ -232,7 +226,6 @@ class Categorias extends conexion{
                         }
                     } 
 
-
                 }
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
@@ -241,7 +234,7 @@ class Categorias extends conexion{
     }
 
 
-    private function eliminarCategoria(){
+    private function deletePlatform(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 

@@ -4,18 +4,18 @@ require_once "helpers.class.php";
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
-class Subcomentarios extends conexion{
+class Subcomments extends conexion{
 
     
-    private $table = "subcomentarios";
+    private $table = "subcomments";
     private $id = "";
 
-    private $usuario_id = "";
-    private $comentario_id = "";
+    private $user_id = "";
+    private $comment_id = "";
 
-    private $contenido = "";
+    private $content = "";
 
-    private $fecha = "";
+    private $date = "";
     
     private $token = "";
 
@@ -41,21 +41,21 @@ class Subcomentarios extends conexion{
 
                 
                 #comprobamos si todos los datos requeridos nos llegaron
-                if (!isset($datos['contenido']) || !isset($datos['comentario_id']) 
-                || !isset($datos['fecha'])) {
+                if (!isset($datos['content']) || !isset($datos['comment_id']) 
+                || !isset($datos['date'])) {
                     return $_respuestas->error_400();
                 }else{
 
                     /* var_dump($conexion);die(); */
                     #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                    $this->usuario_id = $_helpers->usuarioToken($this->token);
-                    $this->comentario_id = mysqli_real_escape_string($conexion, $datos['comentario_id']);
-                    $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
-                    $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
+                    $this->user_id = $_helpers->userToken($this->token);
+                    $this->comment_id = mysqli_real_escape_string($conexion, $datos['comment_id']);
+                    $this->content = mysqli_real_escape_string($conexion, $datos['content']); 
+                    $this->date = mysqli_real_escape_string($conexion, $datos['date']); 
                     
 
                     #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                    $resp = $this->insertarSubcomentario();
+                    $resp = $this->insertSubcomment();
                     var_dump($resp);
                     if ($resp) {
                         $respuesta = $_respuestas->response;
@@ -79,11 +79,11 @@ class Subcomentarios extends conexion{
 
 
 
-    private function insertarSubcomentario(){
-        $query = "INSERT INTO " . $this->table ." (usuario_id, comentario_id, contenido,  fecha) 
+    private function insertSubcomment(){
+        $query = "INSERT INTO " . $this->table ." (user_id, comment_id, content,  date) 
         VALUES
-        ( '" . $this->usuario_id . "', '" . $this->comentario_id . "',
-        '" . $this->contenido . "', '" . $this->fecha . "') ";
+        ( '" . $this->user_id . "', '" . $this->comment_id . "',
+        '" . $this->content . "', '" . $this->date . "') ";
         $resp = parent::nonQueryId($query);
         var_dump($query);
         var_dump($resp);
@@ -117,31 +117,31 @@ class Subcomentarios extends conexion{
                 
                 #comprobamos si todos los datos requeridos nos llegaron
                 if (!isset($datos['id'])) {
-                    return $_respuestas->error_400('no has enviado el id del subcomentario a modificar');
+                    return $_respuestas->error_400('no has enviado el id del subcomment a modificar');
                 }else{
                     
 
                 
                     #comprobamos si todos los datos requeridos nos llegaron
-                    if (!isset($datos['contenido']) || !isset($datos['fecha'])) {
+                    if (!isset($datos['content']) || !isset($datos['date'])) {
                         return $_respuestas->error_400();
                     }else{
 
-                        $usuarioToken = $_helpers->usuarioToken($this->token);
-                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        $userToken = $_helpers->userToken($this->token);
+                        $this->user_id = $_helpers->user_id($datos['id'], $this->table);
                         
-                        if ($usuarioToken != $this->usuario_id) {
+                        if ($userToken != $this->user_id) {
                             return $_respuestas->error_401('no tienes permisos para modificar este comentario');
                         }else{
                         
                             $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
                             /* var_dump($conexion);die(); */
                             #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                            $this->contenido = mysqli_real_escape_string($conexion, $datos['contenido']); 
-                            $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); 
+                            $this->content = mysqli_real_escape_string($conexion, $datos['content']); 
+                            $this->date = mysqli_real_escape_string($conexion, $datos['date']); 
                             
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                            $resp = $this->modificarSubcomentario();
+                            $resp = $this->modifySubcomment();
                             var_dump($resp);
                             if ($resp) {
                                 $respuesta = $_respuestas->response;
@@ -165,10 +165,10 @@ class Subcomentarios extends conexion{
 
 
     
-    private function modificarSubcomentario(){
+    private function modifySubcomment(){
         
-        $query = "UPDATE " . $this->table ." SET contenido =  '" . $this->contenido . "',
-        fecha = '" . $this->fecha . "'
+        $query = "UPDATE " . $this->table ." SET content =  '" . $this->content . "',
+        date = '" . $this->date . "'
         WHERE id = '" . $this->id . "'";
 
         
@@ -208,10 +208,10 @@ class Subcomentarios extends conexion{
                     return $_respuestas->error_400();
                 }else{
 
-                    $usuarioToken = $_helpers->usuarioToken($this->token);
-                    $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                    $userToken = $_helpers->userToken($this->token);
+                    $this->user_id = $_helpers->user_id($datos['id'], $this->table);
                     
-                    if ($usuarioToken != $this->usuario_id) {
+                    if ($userToken != $this->user_id) {
                         return $_respuestas->error_401('no tienes permisos para modificar este comentario');
                     }else{
                         #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
@@ -219,7 +219,7 @@ class Subcomentarios extends conexion{
 
 
                         #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->eliminarSubcomentario();
+                        $resp = $this->deleteSubcomment();
                         if ($resp) {
                             $respuesta = $_respuestas->response;
                             $respuesta['result'] = array (
@@ -238,7 +238,7 @@ class Subcomentarios extends conexion{
     }
 
 
-    private function eliminarSubcomentario(){
+    private function deleteSubcomment(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 

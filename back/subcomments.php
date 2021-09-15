@@ -1,49 +1,49 @@
 <?php
-require_once "clases/plataformas.class.php";
+require_once "clases/subcomments.class.php";
 require_once "clases/respuestas.class.php";
 
 
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
-$_plataformas = new Plataformas;
+$_subcomments = new Subcomments;
 $_respuestas = new respuestas;
 $_helpers = new Helpers;
-$tabla = 'plataformas';
 
-#para los READ, YA SEAN todos los plataformas o solo uno
+#para los READ, YA SEAN todos los Subcomments o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaPlataformas = $_helpers->listar($pagina, $tabla);
+        $listaSubcomments = $_helpers->listar($pagina, "subcomments");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($listaPlataformas);
+        echo json_encode($listaSubcomments);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
 
 
     }elseif(isset($_GET['id'])){
-        $plataformaId = $_GET['id'];
-        $datosPlataforma = $_helpers->obtener($plataformaId, $tabla);
+        $subcommentId = $_GET['id'];
+        $datosSubcomment = $_helpers->obtener($subcommentId, "subcomments");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($datosPlataforma);
+        echo json_encode($datosSubcomment);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
     }else{
-        $allData = $_helpers->obtenerAll($tabla);
+        $all = $_helpers->obtenerAll("subcomments");
+
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($allData);
+        echo json_encode($all);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input");
 
     #enviamos esto al manejador
-    $datosArray = $_plataformas->post($postBody);
+    $datosArray = $_subcomments->post($postBody);
     
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input"); 
     
     #enviamos datos al manejador
-    $datosArray = $_plataformas->put($postBody);
+    $datosArray = $_subcomments->put($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     
         #enviamos datos al manejador
-    $datosArray = $_plataformas->delete($postBody);
+    $datosArray = $_subcomments->delete($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");

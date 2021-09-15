@@ -1,49 +1,49 @@
 <?php
-require_once "clases/comentarios.class.php";
+require_once "clases/platforms.class.php";
 require_once "clases/respuestas.class.php";
 
 
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
-$_comentarios = new Comentarios;
+$_platforms = new Platforms;
 $_respuestas = new respuestas;
 $_helpers = new Helpers;
+$tabla = 'platforms';
 
-#para los READ, YA SEAN todos los Comentarios o solo uno
+#para los READ, YA SEAN todos los platforms o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaComentarios = $_helpers->listar($pagina, "comentarios");
+        $listaPlatforms = $_helpers->listar($pagina, $tabla);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($listaComentarios);
+        echo json_encode($listaPlatforms);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
 
 
     }elseif(isset($_GET['id'])){
-        $comentarioId = $_GET['id'];
-        $datosComentario = $_helpers->obtener($comentarioId, "comentarios");
+        $platformId = $_GET['id'];
+        $datosPlatform = $_helpers->obtener($platformId, $tabla);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($datosComentario);
+        echo json_encode($datosPlatform);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
     }else{
-        $all = $_helpers->obtenerAll("comentarios");
-
+        $allData = $_helpers->obtenerAll($tabla);
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($all);
+        echo json_encode($allData);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input");
 
     #enviamos esto al manejador
-    $datosArray = $_comentarios->post($postBody);
+    $datosArray = $_platforms->post($postBody);
     
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input"); 
     
     #enviamos datos al manejador
-    $datosArray = $_comentarios->put($postBody);
+    $datosArray = $_platforms->put($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     
         #enviamos datos al manejador
-    $datosArray = $_comentarios->delete($postBody);
+    $datosArray = $_platforms->delete($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");

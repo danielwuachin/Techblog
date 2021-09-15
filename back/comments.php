@@ -1,43 +1,43 @@
 <?php
-require_once "clases/publicaciones.class.php";
+require_once "clases/comments.class.php";
 require_once "clases/respuestas.class.php";
 
 
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
-$_publicaciones = new Publicaciones;
+$_comments = new Comments;
 $_respuestas = new respuestas;
 $_helpers = new Helpers;
 
-#para los READ, YA SEAN todos los publicaciones o solo uno
+#para los READ, YA SEAN todos los Comments o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaPublicaciones = $_helpers->listar($pagina, "publicaciones");
+        $listaComments = $_helpers->listar($pagina, "comments");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($listapublicaciones);
+        echo json_encode($listaComments);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
 
 
     }elseif(isset($_GET['id'])){
-        $publicacionId = $_GET['id'];
-        $datosPublicacion = $_helpers->obtener($publicacionId, "publicaciones");
+        $commentId = $_GET['id'];
+        $datosComment = $_helpers->obtener($commentId, "comments");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($datosPublicacion);
+        echo json_encode($datosComment);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
     }else{
-        $all = $_helpers->obtenerAll("publicaciones");
+        $all = $_helpers->obtenerAll("comments");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input");
 
     #enviamos esto al manejador
-    $datosArray = $_publicaciones->post($postBody);
+    $datosArray = $_comments->post($postBody);
     
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $postBody = file_get_contents("php://input"); 
     
     #enviamos datos al manejador
-    $datosArray = $_publicaciones->put($postBody);
+    $datosArray = $_comments->put($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     
         #enviamos datos al manejador
-    $datosArray = $_publicaciones->delete($postBody);
+    $datosArray = $_comments->delete($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");

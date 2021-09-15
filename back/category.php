@@ -1,13 +1,13 @@
 <?php
-require_once "clases/categorias.class.php";
+require_once "clases/category.class.php";
 require_once "clases/respuestas.class.php";
 
 
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
-$_Categorias = new Categorias;
+$_Categorias = new Category;
 $_respuestas = new respuestas;
 $_helpers = new Helpers;
-$tabla = 'categorias';
+$tabla = 'category';
 
 #para los READ, YA SEAN todos los Categorias o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {

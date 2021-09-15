@@ -4,21 +4,21 @@ require_once "helpers.class.php";
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
-class Publicaciones extends conexion{
+class Publications extends conexion{
 
     
-    private $table = "publicaciones";
+    private $table = "publications";
     private $id = "";
 
-    private $titulo = "";
-    private $descripcion = "";
+    private $title = "";
+    private $description = "";
     
-    private $usuario_id = "";
-    private $categoria_id = "0";
-    private $plataforma_id = "0";
+    private $user_id = "";
+    private $category_id = "0";
+    private $platform_id = "0";
     
     private $image_path= "";
-    private $fecha = "";
+    private $date = "";
     
     private $token = "";
 
@@ -47,25 +47,22 @@ class Publicaciones extends conexion{
                 $admin_verify = $is_admin[0]['ROLE'];
                 var_dump($is_admin);
 
-                if($admin_verify != 'admin' || $admin_verify != 'publicador'){
-                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
-                }else{
-                
+                if($admin_verify == 'admin' || $admin_verify == 'publicador'){
                     #comprobamos si todos los datos requeridos nos llegaron
-                    if (!isset($datos['titulo']) || !isset($datos['descripcion']) || !isset($datos['image_path']) ) {
+                    if (!isset($datos['title']) || !isset($datos['description']) || !isset($datos['image_path']) ) {
                         return $_respuestas->error_400();
                     }else{
 
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                        $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']);
-                        $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); 
-                        $this->usuario_id = $_helpers->usuarioToken($this->token);
+                        $this->title = mysqli_real_escape_string($conexion, $datos['title']);
+                        $this->description = mysqli_real_escape_string($conexion, $datos['description']); 
+                        $this->user_id = $_helpers->userToken($this->token);
 
                         
-                        if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
-                        if(isset($datos['categoria_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['categoria_id']); }
-                        if(isset($datos['plataforma_id'])) { $this->plataforma_id = mysqli_real_escape_string($conexion, $datos['plataforma_id']); }
+                        if(isset($datos['date'])) { $this->date = mysqli_real_escape_string($conexion, $datos['date']); }
+                        if(isset($datos['category_id'])) { $this->category_id = mysqli_real_escape_string($conexion, $datos['category_id']); }
+                        if(isset($datos['platform_id'])) { $this->platform_id = mysqli_real_escape_string($conexion, $datos['platform_id']); }
 
                         
                         
@@ -78,7 +75,7 @@ class Publicaciones extends conexion{
                         }
 
                         #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                        $resp = $this->insertarPublicacion();
+                        $resp = $this->insertPublication();
                         var_dump($resp);
                         if ($resp) {
                             $respuesta = $_respuestas->response;
@@ -92,6 +89,9 @@ class Publicaciones extends conexion{
                         
 
                     }
+                }else{
+                    
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }
 
 
@@ -106,11 +106,11 @@ class Publicaciones extends conexion{
 
 
 
-    private function insertarPublicacion(){
-        $query = "INSERT INTO " . $this->table ." (usuario_id, categoria_id, plataforma_id, image_path, titulo, descripcion,  fecha) 
+    private function insertPublication(){
+        $query = "INSERT INTO " . $this->table ." (user_id, category_id, platform_id, image_path, title, description,  date) 
         VALUES
-        ( '" . $this->usuario_id . "', '" . $this->categoria_id . "', '" . $this->plataforma_id . "' , '" . $this->image_path . "' , 
-        '" . $this->titulo . "', '" . $this->descripcion . "', '" . $this->fecha . "') ";
+        ( '" . $this->user_id . "', '" . $this->category_id . "', '" . $this->platform_id . "' , '" . $this->image_path . "' , 
+        '" . $this->title . "', '" . $this->description . "', '" . $this->date . "') ";
         $resp = parent::nonQueryId($query);
         var_dump($query);
         var_dump($resp);
@@ -149,31 +149,28 @@ class Publicaciones extends conexion{
                 var_dump($is_admin);
 
                 if($admin_verify != 'admin' || $admin_verify != 'publicador'){
-                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
-                }else{
-                    
                     #comprobamos si todos los datos requeridos nos llegaron
                     if (!isset($datos['id'])) {
                         return $_respuestas->error_400();
                     }else{
 
-                        $usuarioToken = $_helpers->usuarioToken($this->token);
-                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
+                        $userToken = $_helpers->userToken($this->token);
+                        $this->user_id = $_helpers->user_id($datos['id'], $this->table);
                         
-                        if ($usuarioToken != $this->usuario_id) {
-                            return $_respuestas->error_401('no tienes permisos para modificar esta publicacion');
+                        if ($userToken != $this->user_id) {
+                            return $_respuestas->error_401('no tienes permisos para modify esta publication');
                         }else{
                         
                             $this->id = mysqli_real_escape_string($conexion, $datos["id"]);
                             /* var_dump($conexion);die(); */
                             #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                            if(isset($datos['categoria_id'])) { $this->categoria_id = mysqli_real_escape_string($conexion, $datos['categoria_id']); }
-                            if(isset($datos['plataforma_id'])) { $this->plataforma_id = mysqli_real_escape_string($conexion, $datos['plataforma_id']); }
+                            if(isset($datos['category_id'])) { $this->category_id = mysqli_real_escape_string($conexion, $datos['category_id']); }
+                            if(isset($datos['platform_id'])) { $this->platform_id = mysqli_real_escape_string($conexion, $datos['platform_id']); }
                             
                             
-                            if(isset($datos['titulo'])) { $this->titulo = mysqli_real_escape_string($conexion, $datos['titulo']); }
-                            if(isset($datos['descripcion'])) { $this->descripcion = mysqli_real_escape_string($conexion, $datos['descripcion']); }
-                            if(isset($datos['fecha'])) { $this->fecha = mysqli_real_escape_string($conexion, $datos['fecha']); }
+                            if(isset($datos['title'])) { $this->title = mysqli_real_escape_string($conexion, $datos['title']); }
+                            if(isset($datos['description'])) { $this->description = mysqli_real_escape_string($conexion, $datos['description']); }
+                            if(isset($datos['date'])) { $this->date = mysqli_real_escape_string($conexion, $datos['date']); }
 
                             
                             
@@ -185,7 +182,7 @@ class Publicaciones extends conexion{
                             }
 
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                            $resp = $this->modificarPublicacion();
+                            $resp = $this->modifyPublication();
                             var_dump($resp);
                             if ($resp) {
                                 $respuesta = $_respuestas->response;
@@ -198,6 +195,9 @@ class Publicaciones extends conexion{
                             }
                         }
                     }
+                }else{
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
+                    
                 }
                     
 
@@ -209,11 +209,11 @@ class Publicaciones extends conexion{
 
 
     
-    private function modificarPublicacion(){
+    private function modifyPublication(){
         
-        $query = "UPDATE " . $this->table ." SET titulo = '" . $this->titulo . "', descripcion =  '" . $this->descripcion . "',
-        categoria_id = '" . $this->categoria_id . "', image_path = '" . $this->image_path . "', 
-        fecha = '" . $this->fecha . "', plataforma_id = '" . $this-> plataforma_id . "'  
+        $query = "UPDATE " . $this->table ." SET title = '" . $this->title . "', description =  '" . $this->description . "',
+        category_id = '" . $this->category_id . "', image_path = '" . $this->image_path . "', 
+        date = '" . $this->date . "', platform_id = '" . $this-> platform_id . "'  
         WHERE id = '" . $this->id . "'";
 
         var_dump($query);
@@ -255,37 +255,37 @@ class Publicaciones extends conexion{
                 var_dump($is_admin);
 
                 if($admin_verify != 'admin' || $admin_verify != 'publicador'){
-                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
+                    
+                                        #comprobamos si todos los datos requeridos nos llegaron
+                                        if (!isset($datos['id'])) {
+                                            return $_respuestas->error_400();
+                                        }else{
+                    
+                                            $userToken = $_helpers->userToken($this->token);
+                                            $this->user_id = $_helpers->user_id($datos['id'], $this->table);
+                                            
+                                            if ($userToken != $this->user_id) {
+                                                return $_respuestas->error_401('no tienes permisos para delete esta publication');
+                                            }else{
+                                                #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
+                                                $this->id = $datos['id'];
+                    
+                    
+                                                #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
+                                                $resp = $this->deletePublication();
+                                                if ($resp) {
+                                                    $respuesta = $_respuestas->response;
+                                                    $respuesta['result'] = array (
+                                                        "id" => $this->id
+                                                    );
+                                                    return $respuesta;
+                                                }else{
+                                                    return $_respuestas->error_500();
+                                                }
+                                            }
+                                        } 
                 }else{
-
-                    #comprobamos si todos los datos requeridos nos llegaron
-                    if (!isset($datos['id'])) {
-                        return $_respuestas->error_400();
-                    }else{
-
-                        $usuarioToken = $_helpers->usuarioToken($this->token);
-                        $this->usuario_id = $_helpers->usuario_id($datos['id'], $this->table);
-                        
-                        if ($usuarioToken != $this->usuario_id) {
-                            return $_respuestas->error_401('no tienes permisos para eliminar esta publicacion');
-                        }else{
-                            #como se recibe es el id del campo a actualizar, se guarda en una variable y el resto se verifica aparte
-                            $this->id = $datos['id'];
-
-
-                            #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
-                            $resp = $this->eliminarPublicacion();
-                            if ($resp) {
-                                $respuesta = $_respuestas->response;
-                                $respuesta['result'] = array (
-                                    "id" => $this->id
-                                );
-                                return $respuesta;
-                            }else{
-                                return $_respuestas->error_500();
-                            }
-                        }
-                    } 
+                    return $_respuestas->error_401("area solo para administradores, no tienes permisos suficioentes");
                 }
             }else{
                 return $_respuestas->error_401("el token que se envio es invalido o caduco");
@@ -294,7 +294,7 @@ class Publicaciones extends conexion{
     }
 
 
-    private function eliminarPublicacion(){
+    private function deletePublication(){
         $query = "DELETE FROM ". $this->table ." WHERE id = '" . $this->id . "'";
         $resp = parent::nonQuery($query);
 

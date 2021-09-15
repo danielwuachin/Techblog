@@ -26,6 +26,7 @@ h2 {
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
     font-weight: bold;
+    padding-top: 32px;
 }
 
 p {
@@ -59,3 +60,56 @@ code {
     margin: 14px 0 14px 0;
     padding: 12px 10px 12px 10px;
 }
+
+
+
+
+
+
+
+html{
+    box-sizing: border-box;
+    font-family: var(--font);
+    /* se establece en 16´x para trabajar con rems */
+    font-size: 16px;
+
+    /* para el scroll de los enlaces internos */
+    scroll-behavior: smooth;
+}
+
+/* esto es para que el contenido generado dinamicamente se adate al tamaño del contenido de la etiqueta html creada anteriormente */
+*,
+*::after,
+*::before{
+    box-sizing: inherit;
+}
+
+
+body{
+    margin: 0;
+
+    /* lo qeu sobre, no se vea */
+    overflow-x: hidden;
+}
+
+
+.divbody{
+    width: 100%;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: stretch;
+}
+
+code{
+    min-width: 25%;
+    margin: 1% 1%;
+    
+}
+
+.title{
+    display: block !important;
+    margin-left: 15px;
+    padding-left: 3px;
+    margin-top: 16px;
+} 

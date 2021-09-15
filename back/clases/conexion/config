@@ -3,7 +3,7 @@
         "server" : "localhost",
         "user" : "root",
         "password" : "",
-        "database" : "blog_master",
+        "database" : "blog_videogames",
         "port": "3306"
     }
 }

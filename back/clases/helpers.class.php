@@ -31,8 +31,8 @@ class Helpers extends conexion{
 
 
     /* verificar si es admin */
-    public function isAdmin($token, $tabla = "usuarios"){
-        $query = "SELECT ROLE FROM $tabla WHERE id = ( SELECT UsuarioId FROM usuarios_token WHERE Token = '". $token ."' ) ";
+    public function isAdmin($token, $tabla = "users"){
+        $query = "SELECT ROLE FROM $tabla WHERE id = ( SELECT user_id FROM users_token WHERE Token = '". $token ."' ) ";
         $resultado = parent::obtenerDatos($query);
         
         return $resultado;
@@ -42,7 +42,7 @@ class Helpers extends conexion{
 
 
     public function buscarToken($token){
-        $query = "SELECT  tokenId, UsuarioId, Estado FROM usuarios_token WHERE Token = '" . $token . "' AND Estado = 'Activo'";
+        $query = "SELECT  tokenId, user_id, status FROM users_token WHERE Token = '" . $token . "' AND status = 'Active'";
         $resp = parent::obtenerDatos($query);
 
         if ($resp) {
@@ -55,7 +55,7 @@ class Helpers extends conexion{
     #para actualizar el token cada vez que se realize una consulta
     public function actualizarToken($tokenid){
         $date = date("Y-m-d H:i");
-        $query = "UPDATE usuarios_token SET Fecha = '$date' WHERE tokenId = '$tokenid'";
+        $query = "UPDATE users_token SET Fecha = '$date' WHERE tokenId = '$tokenid'";
         $resp = parent::nonQuery($query);
         if ($resp >= 1) {
             return $resp;
@@ -67,7 +67,7 @@ class Helpers extends conexion{
 
     /* eliminar token */
     public function eliminarToken($tokenid){
-        $query = "DELETE FROM usuarios_token WHERE Token = '".$tokenid."' ";
+        $query = "DELETE FROM users_token WHERE Token = '".$tokenid."' ";
         $resp = parent::nonQuery($query);
         if ($resp >= 1) {
             return $resp;
@@ -79,7 +79,7 @@ class Helpers extends conexion{
 
 
     public function obtenerEmail(){
-        $query = "SELECT email FROM ". $this->table;
+        $query = "SELECT email FROM users";
         return parent::obtenerDatos($query);
     }
 
@@ -126,11 +126,11 @@ class Helpers extends conexion{
 
 
 
-    public function usuario_id($id, $tabla){
-        $query = "SELECT usuario_id FROM $tabla WHERE id = '". $id . "'";
+    public function user_id($id, $tabla){
+        $query = "SELECT user_id FROM $tabla WHERE id = '". $id . "'";
         var_dump($query);
         $respuesta = parent::obtenerDatos($query);
-        $resp = intval($respuesta[0]['usuario_id']);
+        $resp = intval($respuesta[0]['user_id']);
 
         var_dump($respuesta);
         if ($resp){
@@ -143,11 +143,11 @@ class Helpers extends conexion{
     
 
 
-    public function usuarioToken($token){
-        $query = "SELECT UsuarioId FROM usuarios_token WHERE Token = '".$token."' ";
+    public function userToken($token){
+        $query = "SELECT user_id FROM users_token WHERE Token = '".$token."' ";
 
         $respuesta = parent::obtenerDatos($query);
-        $resp = intval($respuesta[0]['UsuarioId']);
+        $resp = intval($respuesta[0]['user_id']);
         var_dump($resp);
         if ($resp){
             return $resp;

@@ -5,125 +5,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API - Prubebas</title>
+    <title>Api from Blog-Videogames</title>
     <link rel="stylesheet" href="assets/estilo.css" type="text/css">
 </head>
 
 <body>
     
     <div class="container">
-        <h1>Api de pruebas</h1>
+        <h1>Api from Blog-Videogames</h1>
+        <h2 class="title">Auth - login</h2>
         <div class="divbody">
-            <h3>Auth - login</h3>
             <code>
-                POST /auth
+                POST = /auth
                 <br>
                 {
                 <br>
-                "EMAIL" :"", -> REQUERIDO
+                "email" :"", -> REQUIRED
                 <br>
-                "password": "" -> REQUERIDO
+                "password": "" -> REQUIRED
                 <br>
                 }
 
             </code>
         </div>
+        <h2 class="title">Users managment</h2>
         <div class="divbody">
-            <h3>Pacientes</h3>
+            <!-- <h2 class="title">users</h2>
             <code>
-                GET /pacientes?page=$numeroPagina
+                GET /users?page=$numberPage
                 <br>
-                GET /pacientes?id=$idPaciente
-            </code>
-            <!-- // $query = "INSERT INTO pacientes (DNI)value('1')" ;
- --> <code>
-                POST /pacientes
+                GET /users?id=$idUser
+            </code> -->
+            <code>
+                POST /users
                 <br>
                 {
                 <br>
-                "nombre" : "", -> REQUERIDO
+                "name" : "", -> REQUIRED
                 <br>
-                "dni" : "", -> REQUERIDO
+                "lastname" : "", -> REQUIRED
                 <br>
-                "correo":"", -> REQUERIDO
+                "email":"", -> REQUIRED
                 <br>
-                "codigoPostal" :"",
+                "password" :"", -> REQUIRED
                 <br>
-                "genero" : "",
+                "icon_path" : "",
                 <br>
-                "telefono" : "",
+                "date" : "", -> REQUIRED
                 <br>
-                "fechaNacimiento" : "",
-                <br>
-                "token" : "" -> REQUERIDO
+                "token" : "" -> REQUIRED
                 <br>
                 }
-                <!-- // print_r($conexion->nonQueryId($query));
- -->
+                
             </code>
             <code>
-                PUT /pacientes
+                PUT /users
                 <br>
                 {
                 <br>
-                "nombre" : "",
+                "id" : "", -> REQUIRED
                 <br>
-                "dni" : "",
+                "name" : "",
                 <br>
-                "correo":"",
+                "lastname" : "",
                 <br>
-                "codigoPostal" :"",
+                "email":"", 
                 <br>
-                "genero" : "",
+                "password" :"", 
                 <br>
-                "telefono" : "",
+                "icon_path" : "",
                 <br>
-                "fechaNacimiento" : "",
+                "date" : "", 
                 <br>
-                "token" : "" , -> REQUERIDO
+                "status": "", 
                 <br>
-                "pacienteId" : "" -> REQUERIDO
+                "token" : "" -> REQUIRED
                 <br>
                 }
-                <p>
-                <br>
-
-"nombre" : "perraaa", <br/>
-"apellidos" : "rodriguez",<br/> 
-"email":"jakjsdhlkad@lkadsf@oma.com",<br/>
-"password" :"123456",<br/>
-"icon_path": "",<br/>
-"fecha": "2020-01-03",<br/>
-
-"Estado": "Activo",<br/>
-"token" : "ac9df1eb83738f5ef7bd8ceac80dd261" ,<br/>
-"id": "14"
-
-                </p>
-                ?>
             </code>
             <code>
-                CATEGORIAS
+                DELETE /users
                 <br>
                 {
-                    "id": "8", <br>
-                    "genero": "kung fu", <br> 
-                    "token": "04a3e37583bb0cae43f5055964141148" <br>
-                }
-            </code>
-
-
-            <code>
-                PLATAFORMAS
                 <br>
-                {
-                    "id": "8", <br>
-                    "genero": "PS3", <br> 
-                    "token": "04a3e37583bb0cae43f5055964141148" <br>
+                "id" : "", -> REQUIRED
+                <br>
+                "token" : "" -> REQUIRED
+                <br>
                 }
             </code>
         </div>
-        hola index
+
+        <h2 class="title">Category</h2>
+        <div class="divbody">
+            
+            <code>
+                GET /category
+                <br>
+                GET /category?page=$numberPage
+                <br>
+                GET /Category?id=$idCategory
+            </code>
+
+            <code>
+                POST = /category
+                <br>
+                {
+                <br>
+                "genre" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                PUT = /category
+                <br>
+                {
+                <br>
+                "id": "", -> REQUIRED
+                <br>
+                "genre" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                DELETE = /category
+                <br>
+                {
+                <br>
+                "id": "", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+        </div>
+
+        <h2 class="title">Platform</h2>
+        <div class="divbody">
+            <code>
+                GET /platform
+                <br>
+                GET /platform?page=$numberPage
+                <br>
+                GET /platform?id=$idPlatform
+            </code>
+            <code>
+                POST = /platform
+                <br>
+                {
+                <br>
+                "platform" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+
+            </code>
+            <code>
+                PUT = /platform
+                <br>
+                {
+                <br>
+                "id": "", -> REQUIRED
+                <br>
+                "platform" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                DELETE = /platform
+                <br>
+                {
+                <br>
+                "id": "", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+        </div>
+        
+        <h2 class="title">Publications</h2>
+        <div class="divbody">
+            <code>
+                GET /publications
+                <br>
+                GET /publications?page=$numberPage
+                <br>
+                GET /publications?id=$idPublication
+            </code>
+            <code>
+                POST = /publications
+                <br>
+                {
+                <br>
+                "category_id" :"",
+                <br>
+                "platform_id": "", 
+                <br>
+                
+                "title" :"", -> REQUIRED
+                <br>
+                "description": "" -> REQUIRED
+                
+                <br>
+                "image_path" :"", -> REQUIRED
+                <br>
+                "date": "" -> REQUIRED
+                
+                <br>
+                "token" :"" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                PUT = /publications
+                <br>
+                {
+                <br>
+                "id": "", -> REQUIRED
+                <br>
+                "category_id" :"",
+                <br>
+                "platform_id": "", 
+                <br>
+                
+                "title" :"", -> REQUIRED
+                <br>
+                "description": "" -> REQUIRED
+                
+                <br>
+                "image_path" :"", -> REQUIRED
+                <br>
+                "date": "" -> REQUIRED
+                
+                <br>
+                "token" :"" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                DELETE = /publications
+                <br>
+                {
+                <br>
+                "id" :"", -> REQUIRED
+                <br>
+                
+                "token" :"" -> REQUIRED
+                <br>
+                }
+                
+            </code>
+        </div>
+
+        <h2 class="title">Comments</h2>
+        <div class="divbody">
+            <code>
+                GET /comments
+                <br>
+                GET /comments?page=$numberPage
+                <br>
+                GET /comments?id=$idComment
+            </code>
+            <code>
+                POST = /comments
+                <br>
+                {
+                <br>
+                "publication_id" :"", -> REQUIRED
+                <br>
+                "date" :"", -> REQUIRED
+                <br>
+                "content" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                PUT = /comments
+                <br>
+                {
+                <br>
+                "id" :"", -> REQUIRED
+                <br>
+                "publication_id" :"", -> REQUIRED
+                <br>
+                "date" :"", -> REQUIRED
+                <br>
+                "content" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                DELETE = /comments
+                <br>
+                {
+                <br>
+                "id" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+        </div>
+        <h2 class="title">Subcomments</h2>
+        <div class="divbody">
+            <code>
+                GET /subcomments
+                <br>
+                GET /subcomments?page=$numberPage
+                <br>
+                GET /subcomments?id=$idComment
+            </code>
+            <code>
+                POST = /subcomments
+                <br>
+                {
+                <br>
+                "comment_id" :"", -> REQUIRED
+                <br>
+                "date" :"", -> REQUIRED
+                <br>
+                "content" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                PUT = /subcomments
+                <br>
+                {
+                <br>
+                "id" :"", -> REQUIRED
+                <br>
+                "comment_id" :"", -> REQUIRED
+                <br>
+                "date" :"", -> REQUIRED
+                <br>
+                "content" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+            <code>
+                DELETE = /subcomments
+                <br>
+                {
+                <br>
+                "id" :"", -> REQUIRED
+                <br>
+                "token": "" -> REQUIRED
+                <br>
+                }
+            </code>
+        </div>
+        <h2 class="title">Logout</h2>
+        <div class="divbody">
+            <code>
+                POST = /logout
+                <br>
+                {
+                <br>
+                "token" :"" -> REQUIRED
+                <br>
+                }
+            </code>
+        </div>
     </div>
 
 </body>

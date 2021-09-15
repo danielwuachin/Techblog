@@ -1,43 +1,43 @@
 <?php
-require_once "clases/subcomentarios.class.php";
+require_once "clases/publications.class.php";
 require_once "clases/respuestas.class.php";
 
 
 #instanciar clases, se usa el _ para saber que la variable es la instancia de una clase
-$_subcomentarios = new Subcomentarios;
+$_publications = new Publications;
 $_respuestas = new respuestas;
 $_helpers = new Helpers;
 
-#para los READ, YA SEAN todos los Subcomentarios o solo uno
+#para los READ, YA SEAN todos los publications o solo uno
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['page'])) {
         $pagina = $_GET['page'];
-        $listaSubcomentarios = $_helpers->listar($pagina, "subcomentarios");
+        $listaPublications = $_helpers->listar($pagina, "publications");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($listaSubcomentarios);
+        echo json_encode($listapublications);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
 
 
     }elseif(isset($_GET['id'])){
-        $subcomentarioId = $_GET['id'];
-        $datosSubcomentario = $_helpers->obtener($subcomentarioId, "subcomentarios");
+        $publicationId = $_GET['id'];
+        $datosPublication = $_helpers->obtener($publicationId, "publications");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
 
         #convertir json
-        echo json_encode($datosSubcomentario);
+        echo json_encode($datosPublication);
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         http_response_code(200);
     }else{
-        $all = $_helpers->obtenerAll("subcomentarios");
+        $all = $_helpers->obtenerAll("publications");
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
@@ -56,34 +56,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     #para guardar datos CREATE
 }else if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-    #recibir los datos enviados por el POST
-    $postBody = file_get_contents("php://input");
-
-    #enviamos esto al manejador
-    $datosArray = $_subcomentarios->post($postBody);
-    
-    #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
-    header("Content-Type: application/json");
-    if (isset($datosArray['result']['error_id'])) {
-        $responseCode = $datosArray['result']['error_id'];
-        http_response_code($responseCode);
+    #RECIBIR LOS DATOS POR EL HEADER-------- si el frontend es con vuejs, los enviara por ahi
+    $headers = getallheaders();
+    /* print_r($headers);die(); */
+    if (isset($headers['token']) && isset($headers['id'])) {
+        #recibimos los datos por el header
+        $send = [
+            "token" => $headers['token'],
+            "id" => $headers['id']
+        ];
+        #ahora lo convertimos a un JSON para que sea usado
+        
+        $postBody = json_encode($send);
     }else{
-        http_response_code(200);
+
+        #recibir los datos enviados por el POST
+        $postBody = file_get_contents("php://input");
     }
-    #aqui gracias al json_encode se pasa el array a string
-    echo json_encode($datosArray);
-
-
-
-
-    #actualizar
-}else if ($_SERVER['REQUEST_METHOD'] == 'PUT'){
-    #recibir los datos enviados por el POST
-    $postBody = file_get_contents("php://input"); 
+    #enviamos esto al manejador
+    $datosArray = $_publications->post($postBody);
     
-    #enviamos datos al manejador
-    $datosArray = $_subcomentarios->put($postBody);
-
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
     if (isset($datosArray['result']['error_id'])) {
@@ -124,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     
         #enviamos datos al manejador
-    $datosArray = $_subcomentarios->delete($postBody);
+    $datosArray = $_publications->delete($postBody);
 
     #DEVOLVEMOS UNA RESPUESTA AL FRONTEND
     header("Content-Type: application/json");
