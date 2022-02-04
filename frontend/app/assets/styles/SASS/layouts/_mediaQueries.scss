@@ -1,0 +1,71 @@
+@media screen and (max-width: 650px){
+#header{
+  overflow-y: hidden;
+  height: 80vh;
+  top: 100vh;
+  background-color: $color-first;
+  transition: all 300ms ease-in-out;
+}
+
+.header-active{
+  transform: translateY(-70vh);
+}
+
+
+.ham-button{
+  display: inline-block;
+  position: absolute;
+  left: 1.5rem;
+  bottom: 1.5rem;
+  border-radius: 10%;
+  background-color: $color-third-alpha !important;
+}
+
+
+.navbar{
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.navbar-center{
+  flex-direction: column;
+  & span {
+    padding: 2vh 0; 
+    transition: all 300ms;
+    cursor: pointer;
+    &:hover{
+      color: $color-fourth;
+      background-color: $color-second-alpha;
+    }
+  }
+}
+
+
+.navbar-right{
+  display: inline-flex;
+  flex-direction: column;
+  width: auto;
+}
+
+.navbar-right div {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vh 0; 
+  min-width: 8rem;
+
+  cursor: pointer;
+  &:hover{
+    color: $color-fourth;
+    background-color: $color-second-alpha;
+  }
+}
+
+.navbar-span{
+  display: inline ;
+}
+
+}

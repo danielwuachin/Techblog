@@ -1,4 +1,5 @@
 <?php
+
 require_once "clases/publications.class.php";
 require_once "clases/respuestas.class.php";
 
@@ -16,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
         #esto se manda siempre a la cabecera como una respuesta adecuada
         header("Content-Type: application/json");
+        
 
         #convertir json
         echo json_encode($listapublications);
@@ -55,21 +57,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     #para guardar datos CREATE
 }else if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+   
 
     #RECIBIR LOS DATOS POR EL HEADER-------- si el frontend es con vuejs, los enviara por ahi
     $headers = getallheaders();
     /* print_r($headers);die(); */
-    if (isset($headers['token']) && isset($headers['id'])) {
+    if (isset($headers['token'])) {
         #recibimos los datos por el header
         $send = [
             "token" => $headers['token'],
             "id" => $headers['id']
         ];
         #ahora lo convertimos a un JSON para que sea usado
-        
+        http_response_code(200);
         $postBody = json_encode($send);
     }else{
-
+    http_response_code(200);
         #recibir los datos enviados por el POST
         $postBody = file_get_contents("php://input");
     }
@@ -135,9 +138,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 
 
-}else{
+}else if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS'){ 
+
+    http_response_code(200);
+}
+ else{
 
     header("Content-Type: application/json");
     $datosArray = $_respuestas->error_405();
     echo json_encode($datosArray);
-}
+}	

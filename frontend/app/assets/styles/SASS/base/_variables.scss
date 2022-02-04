@@ -1,0 +1,42 @@
+/* COLORS */
+$color-first: rgb(48, 48, 65);
+$color-first-alpha: rgb(48, 48, 65, 0.75);
+$color-second: rgb(61, 58, 80);
+$color-second-alpha: rgb(61, 58, 80, 0.75);
+$color-third: rgb(14, 162, 246);
+$color-third-alpha: rgb(14, 162, 246, 0.75);
+$color-fourth: rgb(244, 252, 254);
+$color-fourth-alpha: rgb(244, 252, 254, 0.75);
+
+
+$color-white: #fff;
+$color-gray-light: #f3f3f3;
+$color-gray: #ccc;
+$color-gray-dark: #666;
+$color-black: #000;
+
+$color-white-alpha: rgba(255, 255, 255, 0.5);
+$color-black-alpha: rgba(0, 0, 0, 0.5);
+
+/* FONTS */
+
+$raleway: "raleway";
+$lusitana: "lusitana";
+
+/* HERO IMAGE */
+$hero-image: url("../../img/background-title.jpg");
+
+
+
+@mixin fontdetail($color, $size, $weight) {
+  @if $weight <= 300 {
+    font-family: $lusitana;
+  } @else {
+    font-family: $raleway;
+  }
+  color: $color;
+  font: {
+    size: $size;
+    weight: $weight;
+  }
+}

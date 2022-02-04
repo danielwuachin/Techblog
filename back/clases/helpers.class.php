@@ -1,19 +1,20 @@
 <?php
 require_once "conexion/conexion.php";
 
+
 class Helpers extends conexion{
+    
     /* hacer pagination */
-    public function listar($pagina = 1, $tabla){
+    public function listar($pagina, $tabla){
 
         $inicio = 0;
-        $cantidad = 100;
+        $cantidad = 5;
         if ($pagina > 1) {
             $inicio = ($cantidad *($pagina - 1 )) +1;
             $cantidad = $cantidad * $pagina;
         }
-        $query = "SELECT id, Nombre, DNI,Telefono,email FROM ". $tabla . " LIMIT $inicio,$cantidad";
-        $datos = parent::obtenerDatos($query);
-        return $datos;
+        $query = "SELECT id FROM ". $tabla ." LIMIT $inicio, $cantidad" ;
+        return parent::obtenerDatos($query);
     }
 
 

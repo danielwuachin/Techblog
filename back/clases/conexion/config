@@ -1,9 +1,9 @@
 {
     "conexion":{
         "server" : "localhost",
-        "user" : "root",
-        "password" : "",
-        "database" : "blog_videogames",
+        "user" : "348705",
+        "password" : "wuachinFree",
+        "database" : "348705",
         "port": "3306"
     }
 }

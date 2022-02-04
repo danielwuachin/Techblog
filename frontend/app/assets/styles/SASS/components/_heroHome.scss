@@ -1,0 +1,33 @@
+.hero-image{
+  background-image: $hero-image;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* ESTE FALTOOOOOOOOOOOOOOOOOOOOOOOOOOO  */
+.hero-image-content{
+  width: 100%;
+  min-width: 320px;
+}
+
+.hero-image-opacity{
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: $color-black-alpha;
+}
+
+.hero-image-title{
+  @include fontdetail($color-fourth, clamp(4rem, 10vw, 6rem), 800);
+}
+
+#hero-image-subtitle{
+  @include fontdetail($color-fourth, clamp(1rem, 4vw, 2rem), 300);
+  margin: 1vw;
+}
+

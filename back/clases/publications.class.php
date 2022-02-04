@@ -4,6 +4,7 @@ require_once "helpers.class.php";
 require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
+
 class Publications extends conexion{
 
     
@@ -11,6 +12,7 @@ class Publications extends conexion{
     private $id = "";
 
     private $title = "";
+    private $subtitle = "";
     private $description = "";
     
     private $user_id = "";
@@ -49,13 +51,14 @@ class Publications extends conexion{
 
                 if($admin_verify == 'admin' || $admin_verify == 'publicador'){
                     #comprobamos si todos los datos requeridos nos llegaron
-                    if (!isset($datos['title']) || !isset($datos['description']) || !isset($datos['image_path']) ) {
+                    if (!isset($datos['title']) || !isset($datos['subtitle']) || !isset($datos['description']) || !isset($datos['image_path']) ) {
                         return $_respuestas->error_400();
                     }else{
 
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
                         $this->title = mysqli_real_escape_string($conexion, $datos['title']);
+                        $this->subtitle = mysqli_real_escape_string($conexion, $datos['subtitle']);
                         $this->description = mysqli_real_escape_string($conexion, $datos['description']); 
                         $this->user_id = $_helpers->userToken($this->token);
 
@@ -107,10 +110,10 @@ class Publications extends conexion{
 
 
     private function insertPublication(){
-        $query = "INSERT INTO " . $this->table ." (user_id, category_id, platform_id, image_path, title, description,  date) 
+        $query = "INSERT INTO " . $this->table ." (user_id, category_id, platform_id, image_path, title, subtitle, description,  date) 
         VALUES
         ( '" . $this->user_id . "', '" . $this->category_id . "', '" . $this->platform_id . "' , '" . $this->image_path . "' , 
-        '" . $this->title . "', '" . $this->description . "', '" . $this->date . "') ";
+        '" . $this->title . "', '" . $this->subtitle . "', '" . $this->description . "', '" . $this->date . "') ";
         $resp = parent::nonQueryId($query);
         var_dump($query);
         var_dump($resp);
@@ -169,6 +172,7 @@ class Publications extends conexion{
                             
                             
                             if(isset($datos['title'])) { $this->title = mysqli_real_escape_string($conexion, $datos['title']); }
+                            if(isset($datos['subtitle'])) { $this->subtitle = mysqli_real_escape_string($conexion, $datos['subtitle']); }
                             if(isset($datos['description'])) { $this->description = mysqli_real_escape_string($conexion, $datos['description']); }
                             if(isset($datos['date'])) { $this->date = mysqli_real_escape_string($conexion, $datos['date']); }
 
@@ -211,7 +215,7 @@ class Publications extends conexion{
     
     private function modifyPublication(){
         
-        $query = "UPDATE " . $this->table ." SET title = '" . $this->title . "', description =  '" . $this->description . "',
+        $query = "UPDATE " . $this->table ." SET title = '" . $this->title . "', subtitle = '" . $this->subtitle . "', description =  '" . $this->description . "',
         category_id = '" . $this->category_id . "', image_path = '" . $this->image_path . "', 
         date = '" . $this->date . "', platform_id = '" . $this-> platform_id . "'  
         WHERE id = '" . $this->id . "'";
@@ -310,3 +314,4 @@ class Publications extends conexion{
 
 
 
+	

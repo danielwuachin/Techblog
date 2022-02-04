@@ -9,7 +9,7 @@ class Category extends conexion{
     
     private $table = "category";
     private $id = "";
-    private $genre = "";
+    private $category = "";
     private $token = "";
     private $user_id = "";
 
@@ -43,13 +43,13 @@ class Category extends conexion{
                 }else{
 
                     #comprobamos si todos los datos requeridos nos llegaron
-                    if (!isset($datos['genre'])) {
+                    if (!isset($datos['category'])) {
                         return $_respuestas->error_400();
                     }else{
     
                         /* var_dump($conexion);die(); */
                         #estos se dejan asi ya que en el if de arriba se confirma su existencia
-                        $this->genre = mysqli_real_escape_string($conexion, $datos['genre']);
+                        $this->category = mysqli_real_escape_string($conexion, $datos['category']);
                         $this->user_id = $_helpers->userToken($token);
 
                         var_dump($this->user_id);
@@ -77,9 +77,9 @@ class Category extends conexion{
 
 
     private function insertarCategory(){
-        $query = "INSERT INTO " . $this->table ." (user_id, genre) 
+        $query = "INSERT INTO " . $this->table ." (user_id, category) 
         VALUES
-        ( '" .$this->user_id ."', '" . $this->genre . "' ) ";
+        ( '" .$this->user_id ."', '" . $this->category . "' ) ";
         $resp = parent::nonQueryId($query);
         var_dump($query);
         if ($resp) {
@@ -133,7 +133,7 @@ class Category extends conexion{
                             
                             $this->id = $datos["id"];
         
-                            $this->genre = mysqli_real_escape_string($conexion, $datos['genre']);
+                            $this->category = mysqli_real_escape_string($conexion, $datos['category']);
         
                             #EJECUTAR FUNCION GAURDAR CON LOS PARAMETROS RECIEN GUARDADOS ARRIBA
                             $resp = $this->modificarCategory();
@@ -161,7 +161,7 @@ class Category extends conexion{
     
     private function modificarCategory(){
         
-        $query = "UPDATE " . $this->table ." SET genre = '" . $this->genre . "'
+        $query = "UPDATE " . $this->table ." SET category = '" . $this->category . "'
         WHERE id = '" . $this->id . "'";
         
         $resp = parent::nonQuery($query);
